@@ -1,0 +1,142 @@
+:host {
+  display: block;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+}
+
+.main-nav {
+  width: min(1240px, 100%);
+  margin: 0 auto 1rem;
+  padding: 0.85rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgb(255 255 255 / 0.96);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.96rem;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    color: var(--primary-color);
+    background: var(--surface-100);
+  }
+}
+
+.active-link {
+  color: var(--primary-color) !important;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  box-shadow: none;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+
+  img {
+    width: 43px;
+    height: 43px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .logo-text {
+    font-size: 1.28rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--secondary-color);
+  }
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+
+  .welcome-text {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.92rem;
+  }
+}
+
+.user-section .p-button {
+  min-width: 5.8rem;
+}
+
+.user-logged-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.user-logged-row .p-button {
+  min-width: auto;
+}
+
+@media (max-width: 768px) {
+  .main-nav {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 0.75rem;
+    padding: 0.9rem;
+  }
+
+  .logo-container {
+    justify-content: center;
+  }
+
+  .logo-text {
+    font-size: 1.15rem !important;
+  }
+
+  .nav-menu {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .nav-link {
+    font-size: 0.88rem;
+    padding: 0.45rem 0.7rem;
+  }
+
+  .user-section {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .user-logged-row {
+    width: 100%;
+    justify-content: center;
+  }
+}

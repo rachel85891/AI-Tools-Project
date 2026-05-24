@@ -1,0 +1,292 @@
+<div class="checkout-page" dir="rtl">
+  <h1 class="checkout-title">השלמת רכישה</h1>
+
+  <!-- Stepper -->
+  <div class="checkout-stepper">
+    @for (step of steps; track step.index) {
+      <div
+        class="step-item"
+        [class.active]="isStepActive(step.index)"
+        [class.completed]="isStepCompleted(step.index)"
+      >
+        <span class="step-number">{{ step.index }}</span>
+        <span class="step-label">{{ step.label }}</span>
+        @if (step.index < steps.length) {
+          <span class="step-connector"></span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Step content -->
+  <div class="checkout-content">
+    <!-- Step 1: Order Summary -->
+    @if (currentStepValue === STEPS.ORDER_SUMMARY) {
+      <div class="step-panel">
+        <h2>סיכום הזמנה</h2>
+        @if (cartItems.length === 0) {
+          <p class="empty-message">אין פריטים בסל.</p>
+          <p-button label="חזרה לסל" routerLink="/cart"></p-button>
+        } @else {
+          <div class="order-items">
+            @for (seat of cartItems; track seatKey(seat)) {
+              @let show = getShow(seat.showId);
+              <div class="order-item">
+                <div class="order-item-info">
+                  <span class="order-item-title">{{ show?.title ?? 'מופע' }}</span>
+                  <span class="order-item-meta">{{ seat.section }} · שורה {{ seat.row + 1 }} כיסא {{ seat.col + 1 }}</span>
+                  @if (show?.date) {
+                    <span class="order-item-date">{{ show?.date | date: 'dd/MM/yyyy' }}</span>
+                  }
+                </div>
+                <div class="order-item-price">{{ getSeatPrice(seat) }}₪</div>
+              </div>
+            }
+          </div>
+          <div class="order-total">
+            <span>סה"כ לתשלום:</span>
+            <strong>{{ totalToPay() }}₪</strong>
+          </div>
+          <div class="step-actions">
+            <p-button label="הבא — פרטי משתמש" icon="pi pi-arrow-left" (onClick)="goNext()"></p-button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Step 2: User Details -->
+    @if (currentStepValue === STEPS.USER_DETAILS) {
+      <div class="step-panel">
+        <h2>פרטי משתמש</h2>
+        @if (userLoadError()) {
+          <p class="error-message">{{ userLoadError() }}</p>
+        } @else if (user(); as u) {
+          <div class="user-details-card">
+            <p><strong>שם:</strong> {{ u.firstName }} {{ u.lastName }}</p>
+            <p><strong>אימייל:</strong> {{ u.emailAddress }}</p>
+            <p><strong>טלפון:</strong> {{ u.phoneNumber || '—' }}</p>
+            <a routerLink="/personal-area" class="edit-profile-link">עריכת פרטים</a>
+          </div>
+        } @else {
+          <p class="loading-message">טוען פרטים...</p>
+        }
+        <div class="step-actions">
+          <p-button label="הקודם" icon="pi pi-arrow-right" severity="secondary" (onClick)="goPrev()"></p-button>
+          <p-button label="הבא — תשלום" icon="pi pi-arrow-left" (onClick)="goNext()"></p-button>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Payment -->
+    @if (currentStepValue === STEPS.PAYMENT) {
+      <div class="step-panel payment-panel">
+        <h2>פרטי תשלום</h2>
+        <p class="payment-subtitle">בחרו את שיטת התשלום המועדפת והשלימו את הפרטים הנדרשים.</p>
+        <form [formGroup]="paymentForm" class="payment-form" novalidate>
+          <div class="payment-methods" role="radiogroup" aria-label="שיטת תשלום">
+            <label class="method-card" [class.selected]="selectedPaymentMethod === 'card'">
+              <input class="method-input" type="radio" value="card" formControlName="paymentMethod" />
+              <span class="method-icon pi pi-credit-card" aria-hidden="true"></span>
+              <span class="method-content">
+                <strong>כרטיס אשראי</strong>
+                <small>ויזה, מאסטרקארד ואמריקן אקספרס</small>
+              </span>
+            </label>
+            <label class="method-card paypal" [class.selected]="selectedPaymentMethod === 'paypal'">
+              <input class="method-input" type="radio" value="paypal" formControlName="paymentMethod" />
+              <span class="method-icon pi pi-wallet" aria-hidden="true"></span>
+              <span class="method-content">
+                <strong>PayPal</strong>
+                <small>תשלום מהיר ומאובטח דרך החשבון שלכם</small>
+              </span>
+            </label>
+          </div>
+
+          @if (selectedPaymentMethod === 'card') {
+            <div class="payment-grid">
+              <div class="payment-field full-width">
+                <label for="cardHolder">שם מלא על הכרטיס</label>
+                <input
+                  id="cardHolder"
+                  pInputText
+                  formControlName="cardHolder"
+                  autocomplete="cc-name"
+                  placeholder="למשל: ישראל ישראלי"
+                />
+                @if (paymentForm.get('cardHolder')?.invalid && paymentForm.get('cardHolder')?.touched) {
+                  <small class="field-error">יש להזין שם מלא כפי שמופיע על הכרטיס</small>
+                }
+              </div>
+
+              <div class="payment-field">
+                <label for="idNumber">תעודת זהות בעל הכרטיס</label>
+                <input
+                  id="idNumber"
+                  pInputText
+                  formControlName="idNumber"
+                  class="ltr-input"
+                  inputmode="numeric"
+                  maxlength="9"
+                  autocomplete="off"
+                  placeholder="9 ספרות"
+                  (input)="onIdNumberInput($event)"
+                />
+                @if (paymentForm.get('idNumber')?.invalid && paymentForm.get('idNumber')?.touched) {
+                  <small class="field-error">מספר תעודת זהות חייב להכיל 9 ספרות</small>
+                }
+              </div>
+
+              <div class="payment-field">
+                <label for="cardNumber">מספר כרטיס</label>
+                <input
+                  id="cardNumber"
+                  pInputText
+                  formControlName="cardNumber"
+                  class="ltr-input"
+                  inputmode="numeric"
+                  placeholder="1234 5678 9012 3456"
+                  maxlength="23"
+                  autocomplete="cc-number"
+                  (input)="onCardNumberInput($event)"
+                />
+                @if (paymentForm.get('cardNumber')?.invalid && paymentForm.get('cardNumber')?.touched) {
+                  <small class="field-error">
+                    @if (paymentForm.get('cardNumber')?.errors?.['required']) {
+                      שדה חובה
+                    } @else if (paymentForm.get('cardNumber')?.errors?.['pattern']) {
+                      מספר כרטיס לא תקין (13 עד 19 ספרות)
+                    } @else if (paymentForm.get('cardNumber')?.errors?.['luhn']) {
+                      מספר כרטיס לא תקין
+                    }
+                  </small>
+                }
+              </div>
+
+              <div class="payment-field">
+                <label for="expiry">תוקף</label>
+                <input
+                  id="expiry"
+                  pInputText
+                  formControlName="expiry"
+                  class="ltr-input"
+                  placeholder="MM/YY"
+                  maxlength="5"
+                  inputmode="numeric"
+                  autocomplete="cc-exp"
+                  (input)="onExpiryInput($event)"
+                />
+                @if (paymentForm.get('expiry')?.invalid && paymentForm.get('expiry')?.touched) {
+                  <small class="field-error">
+                    @if (paymentForm.get('expiry')?.errors?.['required']) {
+                      שדה חובה
+                    } @else if (paymentForm.get('expiry')?.errors?.['expired']) {
+                      כרטיס שפג תוקף
+                    } @else {
+                      פורמט תקין: MM/YY
+                    }
+                  </small>
+                }
+              </div>
+
+              <div class="payment-field">
+                <label for="cvv">קוד אבטחה (CVV)</label>
+                <input
+                  id="cvv"
+                  pInputText
+                  formControlName="cvv"
+                  type="password"
+                  class="ltr-input"
+                  inputmode="numeric"
+                  placeholder="3 או 4 ספרות"
+                  maxlength="4"
+                  autocomplete="cc-csc"
+                  (input)="onCvvInput($event)"
+                />
+                @if (paymentForm.get('cvv')?.invalid && paymentForm.get('cvv')?.touched) {
+                  <small class="field-error">CVV חייב להכיל 3 או 4 ספרות</small>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="paypal-panel">
+              <p class="paypal-note">בסיום האישור תועברו להמשך תשלום מאובטח ב-PayPal.</p>
+              <div class="payment-field full-width">
+                <label for="paypalEmail">אימייל לחשבון PayPal</label>
+                <input
+                  id="paypalEmail"
+                  pInputText
+                  formControlName="paypalEmail"
+                  type="email"
+                  dir="ltr"
+                  inputmode="email"
+                  autocomplete="email"
+                  placeholder="name@example.com"
+                />
+                @if (paymentForm.get('paypalEmail')?.invalid && paymentForm.get('paypalEmail')?.touched) {
+                  <small class="field-error">
+                    @if (paymentForm.get('paypalEmail')?.errors?.['required']) {
+                      שדה חובה
+                    } @else {
+                      יש להזין כתובת אימייל תקינה
+                    }
+                  </small>
+                }
+              </div>
+            </div>
+          }
+        </form>
+        <div class="step-actions">
+          <p-button label="הקודם" icon="pi pi-arrow-right" severity="secondary" (onClick)="goPrev()"></p-button>
+          <p-button
+            [label]="selectedPaymentMethod === 'paypal' ? 'המשך ל-PayPal' : 'אישור ותשלום'"
+            icon="pi pi-check"
+            [loading]="placingOrder()"
+            [disabled]="placingOrder()"
+            (onClick)="goNext()"
+          ></p-button>
+        </div>
+        @if (placeOrderError()) {
+          <p class="error-message">{{ placeOrderError() }}</p>
+        }
+      </div>
+    }
+
+    <!-- Step 4: Confirmation -->
+    @if (currentStepValue === STEPS.CONFIRMATION) {
+      <div class="step-panel confirmation-panel">
+        <div class="confirmation-icon">✓</div>
+        <h2>ההזמנה בוצעה בהצלחה</h2>
+        <p class="confirmation-code">קוד הזמנה: <strong>{{ orderConfirmationCode() }}</strong></p>
+        @if (orderCreatedAt(); as createdAt) {
+          <p class="confirmation-meta">תאריך ושעת יצירת ההזמנה: <strong>{{ createdAt | date: 'dd/MM/yyyy' }} בשעה {{ createdAt | date: 'HH:mm' }}</strong></p>
+        }
+        @if (emailStatusMessage()) {
+          <p class="email-status-msg" [class.success]="emailStatus() === 'success'" [class.error]="emailStatus() === 'error'">
+            {{ emailStatusMessage() }}
+          </p>
+        }
+        <div class="confirmation-summary">
+          <h3>פרטי ההזמנה</h3>
+          @for (item of confirmationItems(); track item.showTitle + item.row + item.col + item.section) {
+            <div class="confirmation-item-detail">
+              <span class="confirmation-item-title">{{ item.showTitle }}</span>
+              <span class="confirmation-item-meta">מקום: {{ item.section }} · שורה {{ item.row }} · כיסא {{ item.col }}</span>
+              @if (item.showDate) {
+                <span class="confirmation-item-meta">מופע: {{ item.showDate | date: 'dd/MM/yyyy' }}@if (item.showTime) { בשעה {{ item.showTime }} }</span>
+              }
+              <span class="confirmation-item-price">{{ item.price }}₪</span>
+            </div>
+          }
+          <div class="confirmation-total">
+            <span>סה"כ שולם:</span>
+            <strong>{{ totalPaid() }}₪</strong>
+          </div>
+        </div>
+        <div class="step-actions">
+          <p-button label="חזרה למופעים" icon="pi pi-home" routerLink="/shows"></p-button>
+          <p-button label="לסל" icon="pi pi-shopping-cart" routerLink="/cart" severity="secondary"></p-button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

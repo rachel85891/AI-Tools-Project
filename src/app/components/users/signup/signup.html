@@ -1,0 +1,92 @@
+<div class="auth-page" dir="rtl">
+  <section class="auth-panel surface-form">
+    <h1>פתיחת חשבון חדש</h1>
+    <p class="auth-subtitle">יש לך כבר חשבון? <a routerLink="/login">מעבר להתחברות</a></p>
+
+    <div class="form-grid">
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="fname"
+          type="text"
+          [(ngModel)]="newUser.firstName"
+          name="fname"
+          class="w-full"
+          autocomplete="given-name"
+        />
+        <label for="fname">שם פרטי</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="lname"
+          type="text"
+          [(ngModel)]="newUser.lastName"
+          name="lname"
+          class="w-full"
+          autocomplete="family-name"
+        />
+        <label for="lname">שם משפחה</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="phone"
+          type="tel"
+          [(ngModel)]="newUser.phoneNumber"
+          name="phone"
+          class="w-full"
+          autocomplete="tel"
+        />
+        <label for="phone">מספר טלפון</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="email1"
+          type="email"
+          [(ngModel)]="newUser.emailAddress"
+          name="email"
+          class="w-full"
+          autocomplete="email"
+        />
+        <label for="email1">כתובת דוא"ל</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on">
+        <p-password
+          inputId="password1"
+          [(ngModel)]="newUser.password"
+          [toggleMask]="true"
+          [feedback]="true"
+          autocomplete="new-password"
+          [inputStyleClass]="'w-full'"
+          [styleClass]="'w-full'"
+        />
+        <label for="password1">סיסמה</label>
+      </p-floatLabel>
+    </div>
+
+    <button
+      pButton
+      pRipple
+      label="אני רוצה להירשם"
+      icon="pi pi-user-plus"
+      class="w-full mt-3"
+      (click)="signup()"
+    ></button>
+  </section>
+
+  <section class="auth-hero">
+    <img src="default.png" alt="TimeBank" class="hero-logo" />
+    <h2>החשבון שלך לכל המופעים</h2>
+    <ul>
+      <li>רכישה מהירה ושמירת מושבים בזמן אמת</li>
+      <li>מעקב הזמנות וניהול אזור אישי במקום אחד</li>
+      <li>חוויית משתמש נקיה, מהירה וברורה</li>
+    </ul>
+  </section>
+</div>
