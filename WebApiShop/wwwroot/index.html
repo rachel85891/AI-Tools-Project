@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Welcome</title>
+    <script src="script.js" defer></script>
+    <style>
+        * {
+            font-family: 'Segoe UI', sans-serif;
+        }
+        main {
+            display: flex;
+            flex-direction:column;
+            width: 100vw;
+            padding: 25vh 25vw;
+            background-color: aliceblue;
+            width: 80vw;
+            height: 90vh;
+            justify-self: center;
+            padding: 2%;
+        }
+        mini {
+            display: flex;
+            gap: 5vw;
+        }
+        .signup {
+            display: flex;
+            flex-direction: column;
+            display: none;
+        }
+        .login {
+            display: flex;
+            flex-direction: column;
+        }
+        .loginbutton, .signupbutton, #checkPassStrength {
+            all: unset;
+            cursor: pointer;
+            padding: 5px 10px;
+            color: white;
+            background-color: dodgerblue;
+            border-radius: 3px;
+        }
+        #openform{
+            all:unset;
+            text-decoration:underline;
+            cursor: pointer;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <main>
+        <h1>📢 Welcome Everyone!!</h1>
+        <h3>👉 Enjoy our project 👈</h3>
+        <mini>
+            <div class="login">
+                <label for="username1">User Name</label>
+                <input type="email" id="username1" />
+                <label for="password1">Password</label>
+                <input type="password" id="password1" />
+                <button type="submit" class="loginbutton">Sign in</button>
+                <button id="openform">New user</button>
+            </div>
+            <div class="signup">
+                <label for="username2">User Name</label>
+                <input type="email" id="username2" />
+                <label for="password2">Password</label>
+                <input type="password" id="password2" />
+                <div class="progressBar"></div>
+                <button id="checkPassStrength" >check password strength</button>
+                <label for="firstname">First Name</label>
+                <input type="text" id="firstname" />
+                <label for="lastname">Last Name</label>
+                <input type="text" id="lastname" />
+                <button type="submit" class="signupbutton">Sign Up</button>
+            </div>
+        </mini>
+    </main>
+</body>
+</html>
