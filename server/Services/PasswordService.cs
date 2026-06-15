@@ -36,7 +36,24 @@ namespace Services
             if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hashedPassword))
                 return false;
 
-            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+            try
+            {
+                // Trim the hashedPassword in case it has trailing spaces from CHAR(255) column padding
+                var trimmedHash = hashedPassword.Trim();
+                return BCrypt.Net.BCrypt.Verify(password, trimmedHash);
+            }
+            catch (BCrypt.Net.SaltParseException)
+            {
+                // Hash is corrupted or not in BCrypt format. 
+                // This can happen with legacy passwords or database corruption.
+                // Return false to fail the login attempt.
+                return false;
+            }
+            catch (Exception)
+            {
+                // Any other unexpected error during verification should also fail login
+                return false;
+            }
         }
     }
 }

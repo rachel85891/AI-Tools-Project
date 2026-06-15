@@ -168,7 +168,6 @@ public partial class ShowsCenterContext : DbContext
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.EmailAddress)
                 .HasMaxLength(30)
-                .IsFixedLength()
                 .HasColumnName("email_address");
             entity.Property(e => e.FirstName)
                 .IsRequired()
@@ -183,7 +182,6 @@ public partial class ShowsCenterContext : DbContext
             entity.Property(e => e.Password)
                 .IsRequired()
                 .HasMaxLength(255)
-                .IsFixedLength()
                 .HasColumnName("password");
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(13)

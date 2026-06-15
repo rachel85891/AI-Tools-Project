@@ -55,7 +55,8 @@ namespace Repositories
             if (string.IsNullOrEmpty(normalized))
                 return null;
 
-            return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress.ToLower() == normalized);
+            // Trim database value in case of fixed-length column with padding
+            return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress.Trim().ToLower() == normalized);
         }
     }
 }
