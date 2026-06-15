@@ -1,0 +1,92 @@
+﻿using System;
+using System.Threading.Tasks;
+using Entities;
+using Microsoft.EntityFrameworkCore;
+using Repositories;
+using Xunit;
+
+namespace Tests
+{
+    public class OrderRepositoryIntegrationTests : IClassFixture<DatabaseFixture>, IDisposable, IAsyncLifetime
+    {
+        private readonly ShowsCenterContext _context;
+        private readonly OrderRepository _repository;
+        private readonly DatabaseFixture _fixture;
+
+        public OrderRepositoryIntegrationTests(DatabaseFixture fixture)
+        {
+            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+            _context = fixture.Context;
+            _repository = new OrderRepository(_context);
+        }
+
+        // Tear-up: runs before each test (async)
+        public Task InitializeAsync()
+        {
+            // Ensure a clean database for each test
+            _context.Database.CloseConnection();
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+            return Task.CompletedTask;
+        }
+
+        // Tear-down: runs after each test (async)
+        public Task DisposeAsync()
+        {
+            // No-op; main cleanup in Dispose()
+            return Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task RegisterOrder_ShouldSaveOrderToRealDatabase()
+        {
+            // Arrange
+            var order = new Order { OrderDate = DateOnly.FromDateTime(DateTime.UtcNow), OrderSum = 15.0 };
+
+            // Act
+            var result = await _repository.addOrder(order);
+
+            // Assert
+            var inDb = await _context.Orders.FindAsync(result.Id);
+            Assert.NotNull(inDb);
+            Assert.Equal(15.0, inDb.OrderSum);
+        }
+
+        [Fact]
+        public async Task GetOrderById_WhenMissing_ReturnsNull()
+        {
+            // Act
+            var res = await _repository.getOrderById(99999);
+
+            // Assert
+            Assert.Null(res);
+        }
+
+        [Fact]
+        public async Task UpdateOrder_IntegrationFlow()
+        {
+            // Arrange
+            var order = new Order { OrderSum = 20.0 };
+            await _context.Orders.AddAsync(order);
+            await _context.SaveChangesAsync();
+
+            // Detach to simulate client-modified entity
+            _context.Entry(order).State = EntityState.Detached;
+
+            // Act
+            order.OrderSum = 25.0;
+            var updated = await _repository.updateOrder(order, order.Id);
+
+            // Assert
+            var inDb = await _context.Orders.FindAsync(order.Id);
+            Assert.Equal(25.0, inDb.OrderSum);
+        }
+
+        // Tear-down
+        public void Dispose()
+        {
+            _context.Database.CloseConnection();
+            _context.Database.EnsureDeleted();
+        }
+    }
+}

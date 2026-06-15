@@ -1,0 +1,68 @@
+﻿using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
+using DTOs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Entities;
+using Repositories;
+using System.Threading.Tasks;
+using System.Net;
+
+namespace Tests
+{
+    public class UserAuthenticationTests : IClassFixture<WebApplicationFactory<WebApiShop.Program>>
+    {
+        private readonly WebApplicationFactory<WebApiShop.Program> _factory;
+
+        public UserAuthenticationTests(WebApplicationFactory<WebApiShop.Program> factory)
+        {
+            _factory = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    // Replace the DbContext with in-memory Sqlite for isolation
+                    var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<ShowsCenterContext>));
+                    if (descriptor != null)
+                        services.Remove(descriptor);
+
+                    services.AddDbContext<ShowsCenterContext>(options =>
+                    {
+                        options.UseSqlite("DataSource=:memory:");
+                    });
+
+                    // Ensure DB created for each test server instance
+                    var sp = services.BuildServiceProvider();
+                    using var scope = sp.CreateScope();
+                    var db = scope.ServiceProvider.GetRequiredService<ShowsCenterContext>();
+                    db.Database.OpenConnection();
+                    db.Database.EnsureCreated();
+                });
+            });
+        }
+
+        [Fact]
+        public async Task Register_SavesHashedPassword_AndLoginSucceeds()
+        {
+            var client = _factory.CreateClient();
+
+            var register = new UserCreateDTO("T","U","int_test@example.com","000000000","my-secret-123");
+            var resp = await client.PostAsJsonAsync("/api/Users/user", register);
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+
+            // Check database to ensure stored password is not plain
+            using var scope = _factory.Services.CreateScope();
+            var repo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            var user = await repo.getUserByEmail(register.EmailAddress);
+            Assert.NotNull(user);
+            Assert.NotEqual(register.Password, user.Password);
+            // Basic sanity: stored password should look like a bcrypt hash (starts with $2)
+            Assert.StartsWith("$2", user.Password);
+
+            // Now login
+            var login = new UserLoginDTO(register.EmailAddress, register.Password);
+            var loginResp = await client.PostAsJsonAsync("/api/Users/loginUser", login);
+            Assert.Equal(HttpStatusCode.OK, loginResp.StatusCode);
+        }
+    }
+}

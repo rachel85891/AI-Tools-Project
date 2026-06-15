@@ -1,0 +1,34 @@
+﻿using System;
+using System.Data.Common;
+
+using Microsoft.EntityFrameworkCore;
+using Entities;
+
+namespace Tests
+{
+    public class DatabaseFixture : IDisposable
+    {
+        public ShowsCenterContext Context { get; private set; }
+        private DbConnection _connection;
+
+        public DatabaseFixture()
+        {
+
+            // Set up the test database connection and initialize the context
+            var options = new DbContextOptionsBuilder<ShowsCenterContext>()
+                .UseSqlServer("Data Source=racheli;Initial Catalog=ShowsCenter;Integrated Security=True;Pooling=False;Trust Server Certificate=True;")
+                .Options;
+
+            Context = new ShowsCenterContext(options);
+            Context.Database.EnsureCreated();
+        }
+
+        public void Dispose()
+        {
+            try { Context.Database.EnsureDeleted(); } catch { }
+            Context?.Dispose();
+            _connection?.Close();
+            _connection?.Dispose();
+        }
+    }
+}
