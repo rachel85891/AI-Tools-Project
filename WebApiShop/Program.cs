@@ -97,6 +97,10 @@ builder.Services.Configure<ForgotPasswordServiceOptions>(
     builder.Configuration.GetSection("PasswordReset"));
 builder.Services.Configure<EmailSenderOptions>(
     builder.Configuration.GetSection("Email"));
+// Bind Kafka settings for producers/consumers
+builder.Services.Configure<Services.KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+// Register Kafka producer service (interface -> implementation)
+builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddScoped<IOrderConfirmationEmailService, OrderConfirmationEmailService>();

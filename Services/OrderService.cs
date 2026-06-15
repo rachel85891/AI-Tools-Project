@@ -18,11 +18,14 @@ namespace Services
     {
         IOrderRepository _repository;
         IMapper _mapper;
+        private readonly IKafkaProducerService? _kafkaProducerService;
 
-        public OrderService(IOrderRepository repository, IMapper mapper)
+        public OrderService(IOrderRepository repository, IMapper mapper, IKafkaProducerService? kafkaProducerService = null)
         {
             _repository = repository;
             _mapper = mapper;
+
+            _kafkaProducerService = kafkaProducerService;
 
         }
         public async Task<List<OrderDTO>> getAllOrders()
@@ -50,6 +53,21 @@ namespace Services
             Order order = _mapper.Map<OrderCreateDTO, Order>(orderCDTO);
             order.OrderDate = DateTime.Now;
             order = await _repository.addOrder(order);
+
+            // publish to Kafka after successful save
+            try
+            {
+                if (_kafkaProducerService != null)
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(order);
+                    await _kafkaProducerService.SendMessageAsync(json);
+                }
+            }
+            catch
+            {
+                // swallow Kafka errors to not break main flow
+            }
+
             OrderDTO orderDTO = _mapper.Map<Order, OrderDTO>(order);
             return orderDTO;
         }
@@ -67,6 +85,21 @@ namespace Services
         {
 
             Order order = await _repository.Checkout(orderToUpdate);
+
+            // publish to Kafka after checkout
+            try
+            {
+                if (_kafkaProducerService != null)
+                {
+                    var json = System.Text.Json.JsonSerializer.Serialize(order);
+                    await _kafkaProducerService.SendMessageAsync(json);
+                }
+            }
+            catch
+            {
+                // ignore
+            }
+
             OrderDTO orderDTO = _mapper.Map<Order, OrderDTO>(order);
             return orderDTO;
         }
@@ -88,6 +121,22 @@ namespace Services
                 OrderedSeat os = _mapper.Map<LockSeatDTO, OrderedSeat>(orderDTO);
                 os.OrderId = ord.Id;
                 OrderedSeat orderedSeat = await _repository.addOrderedSeat(os);
+
+                // if we created a new ordered seat in a newly created order, publish order
+                try
+                {
+                    if (_kafkaProducerService != null)
+                    {
+                        var parentOrder = await _repository.getOrderById(os.OrderId);
+                        var json = System.Text.Json.JsonSerializer.Serialize(parentOrder);
+                        await _kafkaProducerService.SendMessageAsync(json);
+                    }
+                }
+                catch
+                {
+                    // ignore kafka errors
+                }
+
                 return _mapper.Map<OrderedSeat, OrderedSeatReadDTO>(orderedSeat);
             }
             else
@@ -97,6 +146,20 @@ namespace Services
                 order.OrderDate = DateTime.Now;
                 order.Price = 0;
                 order = await _repository.addOrder(order);
+
+                // publish new order to Kafka
+                try
+                {
+                    if (_kafkaProducerService != null)
+                    {
+                        var json = System.Text.Json.JsonSerializer.Serialize(order);
+                        await _kafkaProducerService.SendMessageAsync(json);
+                    }
+                }
+                catch
+                {
+                    // ignore kafka errors
+                }
 
                 OrderedSeat os = _mapper.Map<LockSeatDTO, OrderedSeat>(orderDTO);
                 os.OrderId = order.Id;
