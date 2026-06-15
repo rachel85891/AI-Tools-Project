@@ -1,0 +1,41 @@
+﻿using System;
+using System.Data.Common;
+using System.Linq;
+using System.Threading.Tasks;
+using Entities;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Repositories;
+using Xunit;
+
+namespace Tests
+{
+    public class OrderRepositoryIntegrationTests : IAsyncLifetime, IDisposable
+    {
+        private DbConnection _connection;
+        private ShowsCenterContext _context;
+        private OrderRepository _repository;
+
+        public async Task InitializeAsync()
+        {
+            _connection = new SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+            var options = new DbContextOptionsBuilder<ShowsCenterContext>()
+                .UseSqlite(_connection)
+            await _context.Database.EnsureCreatedAsync();
+            _repository = new OrderRepository(_context);
+        }
+            {                await _context.DisposeAsync();
+            }
+            if (_connection != null)
+            {            }
+        }
+        [Fact]
+        public async Task Checkout_HappyPath_ComputesSumAndUpdatesStatuses()
+            var section1 = new Section { ShowId = show.Id, Price = 10m, SectionType = 1 };            var section2 = new Section { ShowId = show.Id, Price = 20m, SectionType = 1 };            _context.Sections.AddRange(section1, section2);            await _context.SaveChangesAsync();
+        [Fact]
+        public async Task Checkout_UnhappyPath_NoOpenOrder_ReturnsNull()
+        {            var order = new Order { UserId = 600, OrderDate = DateTime.Now, Price = 0 };            var result = await _repository.Checkout(new DTOs.CheckoutDTO(order.UserId, 0));
+            Assert.Null(result);        }
+            var seat = new OrderedSeat { OrderId = order.Id, SectionId = section.Id, Row = 3, Col = 3 };            var added = await _repository.addOrderedSeat(seat);            Assert.NotNull(added);        public async Task GetOrderedSeatsByShowId_ReturnsSeatsForShow()
+        {            var show = new Show { Title = "SeatsShow", Sector = "A", Audience = "All" };            _context.Shows.Add(show);            await _context.SaveChangesAsync();}

@@ -1,0 +1,67 @@
+﻿using System;
+using System.Threading.Tasks;
+using Entities;
+using Repositories;
+using Xunit;
+
+namespace Tests
+{
+    public class UserRepositoryIntegrationTests : IClassFixture<DatabaseFixture>, IDisposable, IAsyncLifetime
+    {
+        private readonly ShowsCenterContext _context;
+        private readonly UserRepository _repository;
+        private readonly DatabaseFixture _fixture;
+
+        public UserRepositoryIntegrationTests(DatabaseFixture fixture)
+        {
+            _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+            _context = fixture.Context;
+            _repository = new UserRepository(_context);
+        }
+
+        public Task InitializeAsync()
+        {
+            // ensure clean DB state for each test
+            _context.Database.CloseConnection();
+            _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
+            return Task.CompletedTask;
+        }
+
+        public Task DisposeAsync()
+        {
+            return Task.CompletedTask;
+        }
+
+        [Fact]
+        public async Task AddUser_PersistsAndLogin_Works()
+        {
+            var user = new User
+            {
+                EmailAddress = $"int_{Guid.NewGuid():N}@test",
+                Password = "p@ss",
+                FirstName = "I",
+                LastName = "T",
+                PhoneNumber = "000"
+            };
+
+            var added = await _repository.addUser(user);
+
+            Assert.NotNull(added);
+            var fromDb = await _context.Users.FindAsync(added.Id);
+            Assert.NotNull(fromDb);
+
+            // now test login works
+            var login = new User { EmailAddress = user.EmailAddress, Password = user.Password };
+            var logged = await _repository.Login(login);
+            Assert.NotNull(logged);
+            Assert.Equal(user.EmailAddress, logged.EmailAddress);
+        }
+
+        public void Dispose()
+        {
+            _context.Database.CloseConnection();
+            _context.Database.EnsureDeleted();
+        }
+    }
+}

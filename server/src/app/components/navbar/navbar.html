@@ -1,0 +1,47 @@
+<nav class="main-nav" dir="rtl">
+  <div class="logo-container" routerLink="/">
+    <img src="logo.png" alt="Shows Center Logo" />
+    <span class="logo-text">Shows Center</span>
+  </div>
+
+  <div class="nav-menu">
+    <a
+      routerLink="/"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-link"
+      >מופעים</a
+    >
+    <a routerLink="/about" routerLinkActive="active-link" class="nav-link">אודות וצור קשר</a>
+    <a routerLink="/cart" routerLinkActive="active-link" class="nav-link">סל קניות</a>
+    <a routerLink="/personal-area" routerLinkActive="active-link" class="nav-link">אזור אישי</a>
+  </div>
+
+  <div class="user-section">
+    @if (isLoggedIn()) {
+      <div class="user-logged-row">
+        <span class="welcome-text">שלום, {{ authService.userName() }}</span>
+        <p-button
+          label="התנתק"
+          icon="pi pi-sign-out"
+          severity="danger"
+          [text]="true"
+          size="small"
+          (onClick)="logout()"
+        >
+        </p-button>
+      </div>
+    } @else {
+      <p-button
+        label="כניסה"
+        icon="pi pi-user"
+        [outlined]="true"
+        severity="secondary"
+        size="small"
+        routerLink="/login"
+      >
+      </p-button>
+      <p-button label="הרשמה" icon="pi pi-user-plus" size="small" routerLink="/signup"> </p-button>
+    }
+  </div>
+</nav>

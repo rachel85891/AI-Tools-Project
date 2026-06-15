@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.users-shell {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.users-switch {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+}

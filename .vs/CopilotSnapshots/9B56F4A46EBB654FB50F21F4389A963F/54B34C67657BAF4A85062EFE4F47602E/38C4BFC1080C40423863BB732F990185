@@ -1,0 +1,35 @@
+﻿using System;
+using System.Data.Common;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Entities;
+
+namespace Tests
+{
+    public class DatabaseFixture : IDisposable
+    {
+        public ShowsCenterContext Context { get; private set; }
+        private DbConnection _connection;
+
+        public DatabaseFixture()
+        {
+            _connection = new SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+
+            var options = new DbContextOptionsBuilder<ShowsCenterContext>()
+                .UseSqlite(_connection)
+                .Options;
+
+            Context = new ShowsCenterContext(options);
+            Context.Database.EnsureCreated();
+        }
+
+        public void Dispose()
+        {
+            try { Context.Database.EnsureDeleted(); } catch { }
+            Context?.Dispose();
+            _connection?.Close();
+            _connection?.Dispose();
+        }
+    }
+}

@@ -1,0 +1,199 @@
+﻿using Moq;
+using Moq.EntityFrameworkCore;
+
+
+using Repositories;
+using Entities;
+        using Xunit;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
+using System.Linq.Expressions;
+
+namespace Test
+{
+    public class UserRepositoryUnitTesting : IAsyncLifetime
+    {
+        /// <summary>
+        /// ����� ��� ����� ������ Mock �� �-Context
+        /// </summary>
+        private Mock<ShowsCenterContext> GetMockContext<T>(List<T> data, Expression<Func<ShowsCenterContext, DbSet<T>>> dbSetSelector) where T : class
+        {
+            var mockContext = new Mock<ShowsCenterContext>();
+            mockContext.Setup(dbSetSelector).ReturnsDbSet(data);
+            return mockContext;
+        }
+
+        // Optional shared fixtures for tests (tear-up/tear-down)
+        private Mock<ShowsCenterContext>? _sharedMockContext;
+        private UserRepository? _sharedRepo;
+        private List<User>? _sharedUsers;
+
+        // Tear-up: runs before each test
+        public Task InitializeAsync()
+        {
+            // Prepare lightweight shared data/context if tests want to reuse them.
+            _sharedUsers = new List<User>
+            {
+                new User { Id = 1, UserName = "test@test.com" }
+            };
+
+            _sharedMockContext = GetMockContext(_sharedUsers, x => x.Users);
+            _sharedRepo = new UserRepository(_sharedMockContext.Object);
+
+            return Task.CompletedTask;
+        }
+
+        // Tear-down: runs after each test
+        public Task DisposeAsync()
+        {
+            // Ensure no state leaks between tests.
+            _sharedUsers = null;
+            _sharedMockContext = null;
+            _sharedRepo = null;
+
+            return Task.CompletedTask;
+        }
+
+        #region Happy Paths
+
+        //[Fact]
+        //public async Task GetAllAsync_ReturnsAllUsers()
+        //{
+        //    var users = new List<User> { new User { Id = 1 }, new User { Id = 2 } };
+        //    var mockContext = GetMockContext(users, x => x.Users);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    var result = await repo.GetAllAsync();
+
+        //    Assert.Equal(2, result.Count());
+        //}
+
+        [Fact]
+        public async Task GetByIdAsync_ExistingId_ReturnsUser()
+        {
+            var users = new List<User> { new User { Id = 1, UserName = "test@test.com" } };
+            var mockContext = GetMockContext(users, x => x.Users);
+            var repo = new UserRepository(mockContext.Object);
+
+            var result = await repo.getUserById(1);
+
+            Assert.NotNull(result);
+            Assert.Equal(1, result.Id);
+        }
+
+        //[Fact]
+        //public async Task GetByUserNameAsync_SameUserCheckingSelf_ReturnsNull()
+        //{
+        //    var users = new List<User> { new User { Id = 1, UserName = "test@test.com" } };
+        //    var mockContext = GetMockContext(users, x => x.Users);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    // ����� ��� ����� ���� �� ��� ����� ���. ������ ��� ���� ID, �� ����� ����� �������.
+        //    var result = await repo.GetByUserNameAsync("test@test.com", 1);
+
+        //    Assert.Null(result);
+        //}
+
+        [Fact]
+        public async Task RegisterAsync_ValidUser_ReturnsAddedUser()
+        {
+            var mockContext = GetMockContext(new List<User>(), x => x.Users);
+            var repo = new UserRepository(mockContext.Object);
+            var newUser = new User { UserName = "new@test.com", FirstName = "A", LastName = "B", Password = "mich123!!" };
+
+            var result = await repo.addUser(newUser);
+
+            Assert.Equal("new@test.com", result.UserName);
+            mockContext.Verify(m => m.SaveChangesAsync(default), Times.Once);
+        }
+
+        //[Fact]
+        //public async Task LoginAsync_CorrectCredentials_ReturnsUser()
+        //{
+        //    var users = new List<User> { new User { UserName = "u@u.com", Password = "123" } };
+        //    var mockContext = GetMockContext(users, x => x.Users);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    var result = await repo.login("u@u.com", "123");
+
+        //    Assert.NotNull(result);
+        //    Assert.Equal("u@u.com", result.UserName);
+        //}
+
+        [Fact]
+        public async Task UpdateAsync_ValidUpdate_ReturnsUpdatedUser()
+        {
+            var user = new User { Id = 1, FirstName = "OldName", UserName = "u@u.com" };
+            var mockContext = GetMockContext(new List<User> { user }, x => x.Users);
+            var repo = new UserRepository(mockContext.Object);
+
+            user.FirstName = "NewName";
+            var result = await repo.UpdateUser(user);
+
+            Assert.Equal("NewName", result.FirstName);
+            mockContext.Verify(m => m.SaveChangesAsync(default), Times.Once);
+        }
+
+        //[Fact]
+        //public async Task GetAllOrdersAsync_ReturnsOnlySpecificUserOrders()
+        //{
+        //    var orders = new List<Order> {
+        //        new Order { Id = 1, UserId = 10 },
+        //        new Order { Id = 2, UserId = 20 }
+        //    };
+        //    var mockContext = GetMockContext(orders, x => x.Orders);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    var result = await repo.GetAllOrdersAsync(10);
+
+        //    Assert.Single(result);
+        //    Assert.Equal(10, result.First().Id);
+        //}
+
+        #endregion
+
+        #region Unhappy Paths
+
+        [Fact]
+        public async Task GetByIdAsync_NonExistingId_ReturnsNull()
+        {
+            var mockContext = GetMockContext(new List<User>(), x => x.Users);
+            var repo = new UserRepository(mockContext.Object);
+
+            var result = await repo.getUserById(999);
+
+            Assert.Null(result);
+        }
+
+        //[Fact]
+        //public async Task GetByUserNameAsync_UserNameTakenByAnother_ReturnsUser()
+        //{
+        //    var users = new List<User> { new User { Id = 1, UserName = "taken@test.com" } };
+        //    var mockContext = GetMockContext(users, x => x.Users);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    // ����� �� ID 2 ���� �� ����� ���� �� ��� ����� ��� (���� ��� ���� �� ��� ID 1)
+        //    var result = await repo.GetByUserNameAsync("taken@test.com", 2);
+
+        //    Assert.NotNull(result);
+        //    Assert.Equal("taken@test.com", result.UserName);
+        //}
+
+        //[Fact]
+        //public async Task LoginAsync_WrongPassword_ReturnsNull()
+        //{
+        //    var users = new List<User> { new User { UserName = "u@u.com", Password = "123" } };
+        //    var mockContext = GetMockContext(users, x => x.Users);
+        //    var repo = new UserRepository(mockContext.Object);
+
+        //    var result = await repo.LoginAsync("u@u.com", "wrong_pass");
+
+        //    Assert.Null(result);
+        //}
+
+        #endregion
+    }
+}

@@ -1,0 +1,333 @@
+<div #container class="show-form-shell flex justify-center gap-4" dir="rtl">
+  <app-add-provider #addProviderRef (providerAdded)="onProviderAdded($event)" />
+  <app-add-category #addCategoryRef (categoryAdded)="onCategoryAdded($event)" />
+
+  <p-button (click)="showDialog()" label="הוסף מופע" styleClass="show-form-open-btn" />
+  <p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '32rem' }" class="dialog">
+    <ng-template #header>
+      <div class="inline-flex items-center justify-center gap-2">
+        <span class="font-bold whitespace-nowrap">הוסף מופע חדש</span>
+      </div>
+    </ng-template>
+    <div class="show-form-grid">
+      <div class="flex items-center gap-4 mb-2 mt-1">
+        <p-floatlabel variant="on">
+          <input
+            pInputText
+            id="title"
+            style="width: 31ch"
+            class="flex-auto"
+            autocomplete="off"
+            [(ngModel)]="title"
+          />
+          <label for="title" class="w-24">שם המופע</label>
+        </p-floatlabel>
+      </div>
+      <div class="card flex justify-center">
+        <p-floatlabel class="md:w-56" variant="on" style="min-width: 31ch">
+          <p-select
+            [options]="categories"
+            [(ngModel)]="categoryId"
+            optionLabel="name"
+            optionValue="id"
+            inputId="on_label2"
+            class="w-full md:w-56"
+            appendTo="body"
+          >
+            <ng-template let-category #item>
+              <div class="flex items-center gap-2">
+                <div>{{ category.name }}</div>
+              </div>
+            </ng-template>
+
+            <ng-template #dropdownicon>
+              <i class="pi pi-plus"></i>
+            </ng-template>
+
+            <ng-template #footer>
+              <div class="p-1" (click)="$event.stopPropagation()">
+                <p-button
+                  label="הוסף חדש"
+                  fluid
+                  severity="secondary"
+                  text
+                  size="small"
+                  icon="pi pi-plus"
+                  (click)="addCategoryRef.showDialog(); $event.stopPropagation()"
+                />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="on_label2">קטגוריה</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-4 mb-2">
+        <p-floatlabel variant="on">
+          <textarea
+            pTextarea
+            rows="5"
+            cols="30"
+            style="resize: none"
+            class="w-full"
+            id="desc"
+            [(ngModel)]="description"
+          ></textarea>
+          <label for="desc">תיאור</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-4 mb-2" style="max-width: 31ch">
+        <p-floatlabel class="w-full md:w-56" variant="on">
+          <p-select
+            [(ngModel)]="audience"
+            inputId="aud"
+            autocomplete="on"
+            [options]="targetAudienceOptions"
+            optionValue="label"
+            optionLabel="label"
+            class="w-full"
+          />
+          <label for="aud">קהל יעד</label>
+        </p-floatlabel>
+      </div>
+      <div class="card flex justify-center mb-2">
+        <div class="flex flex-wrap gap-3">
+          @for (opt of sectorOptions; track opt.value) {
+            <div class="flex items-center gap-1">
+              <p-radiobutton
+                name="sector"
+                [value]="opt.value"
+                [(ngModel)]="sector"
+                [inputId]="opt.value"
+              >
+              </p-radiobutton>
+              <label [for]="opt.value" class="ml-2 align-items-center">{{ opt.label }}</label>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="card flex justify-center gap-4 mb-2">
+        <p-floatlabel variant="on">
+          <p-datepicker
+            [(ngModel)]="date"
+            inputId="fordate"
+            showIcon
+            iconDisplay="input"
+            dateFormat="dd/mm/yy"
+            appendTo="body"
+          />
+          <label for="fordate">תאריך</label>
+        </p-floatlabel>
+      </div>
+
+      <div class="flex items-center gap-4 mb-2">
+        <p-floatlabel variant="on">
+          <p-datepicker
+            [(ngModel)]="beginTime"
+            [timeOnly]="true"
+            hourFormat="24"
+            [showIcon]="true"
+            iconDisplay="input"
+            appendTo="body"
+            inputId="time_input"
+          >
+            <ng-template #inputicon let-clickCallBack="clickCallBack">
+              <i class="pi pi-clock" (click)="clickCallBack($event)"></i>
+            </ng-template>
+          </p-datepicker>
+          <label for="time_input">שעת התחלה</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-4 mb-2">
+        <p-floatlabel variant="on">
+          <p-datepicker
+            [(ngModel)]="endTime"
+            [timeOnly]="true"
+            hourFormat="24"
+            [showIcon]="true"
+            iconDisplay="input"
+            appendTo="body"
+            inputId="time_input"
+          >
+            <ng-template #inputicon let-clickCallBack="clickCallBack">
+              <i class="pi pi-clock" (click)="clickCallBack($event)"></i>
+            </ng-template>
+          </p-datepicker>
+          <label for="time_input">שעת סיום</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        <p-floatlabel variant="on">
+          <p-inputnumber id="hallmap" prefix="₪" [(ngModel)]="hallMap.price" autocomplete="off" />
+          <label for="hallmap">מחיר מקום באולם</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="card flex justify-center align-items-center">
+          <p-toggleswitch [(ngModel)]="checked[1]" />
+        </div>
+        <p-floatlabel variant="on">
+          <p-inputnumber
+            id="centerbalmap"
+            prefix="₪"
+            [(ngModel)]="centerBalMap.price"
+            autocomplete="off"
+            [disabled]="!checked[1]"
+          />
+          <label for="centerbalmap">מחיר מקום ביציע מרכזי</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="card flex justify-center align-items-center">
+          <p-toggleswitch [(ngModel)]="checked[2]" />
+        </div>
+        <p-floatlabel variant="on">
+          <p-inputnumber
+            id="rightbalmap"
+            prefix="₪"
+            [(ngModel)]="rightBalMap.price"
+            autocomplete="off"
+            [disabled]="!checked[2]"
+          />
+          <label for="rightbalmap">מחיר מקום ביציע ימין</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        <div class="card flex justify-center align-items-center">
+          <p-toggleswitch [(ngModel)]="checked[3]" />
+        </div>
+        <p-floatlabel variant="on">
+          <p-inputnumber
+            id="leftbalmap"
+            prefix="₪"
+            [(ngModel)]="leftBalMap.price"
+            autocomplete="off"
+            [disabled]="!checked[3]"
+          />
+          <label for="leftbalmap">מחיר מקום ביציע שמאל</label>
+        </p-floatlabel>
+      </div>
+      <div class="card flex justify-center">
+        <p-floatlabel class="md:w-56" variant="on" style="min-width: 31ch">
+          <p-select
+            [options]="providers"
+            [(ngModel)]="providerId"
+            optionLabel="name"
+            optionValue="id"
+            class="w-full md:w-56"
+            appendTo="body"
+          >
+            <ng-template #selectedItem let-selectedOption>
+              <div class="flex items-center gap-2">
+                <img
+                  [src]="
+                    selectedOption?.profileImgUrl
+                      ? 'https://localhost:44304/' + selectedOption.profileImgUrl
+                      : 'default.png'
+                  "
+                  style="width: 18px"
+                />
+                <div>{{ selectedOption.name }}</div>
+              </div>
+            </ng-template>
+            <ng-template let-provider #item>
+              <div class="flex items-center gap-2">
+                <img
+                  [src]="
+                    provider?.profileImgUrl
+                      ? 'https://localhost:44304/' + provider.profileImgUrl
+                      : 'default.png'
+                  "
+                  style="width: 18px"
+                />
+                <div>{{ provider.name }}</div>
+              </div>
+            </ng-template>
+            <ng-template #dropdownicon>
+              <i class="pi pi-user"></i>
+            </ng-template>
+            <ng-template #footer>
+              <div class="p-1" (click)="$event.stopPropagation()">
+                <p-button
+                  label="הוסף חדש"
+                  fluid
+                  severity="secondary"
+                  text
+                  size="small"
+                  icon="pi pi-plus"
+                  (click)="addProviderRef.showDialog(); $event.stopPropagation()"
+                />
+              </div>
+            </ng-template>
+          </p-select>
+          <label for="on_label">מפיק</label>
+        </p-floatlabel>
+      </div>
+      <div class="flex items-center">
+        <p-floatlabel variant="on">
+          <p-fileUpload
+            #fileUpload
+            mode="basic"
+            chooseLabel="בחר תמונה"
+            accept="image/*"
+            maxFileSize="1000000"
+            [auto]="true"
+            [customUpload]="true"
+            (onSelect)="onFileSelected($event)"
+            [showUploadButton]="false"
+            [showCancelButton]="false"
+            fileLimit="1"
+          >
+          </p-fileUpload>
+        </p-floatlabel>
+      </div>
+
+      <div class="mt-3 relative flex flex-column items-center">
+        @if (imagePreviewSignal()) {
+          <img
+            [src]="imagePreviewSignal()"
+            class="rounded-circle shadow-lg"
+            style="
+              width: 100px;
+              height: 100px;
+              object-fit: cover;
+              border: 3px solid var(--primary-color);
+            "
+          />
+
+          <p-button
+            icon="pi pi-times"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
+            size="small"
+            label="מחק תמונה"
+            (onClick)="removeImage(fileUpload)"
+          >
+          </p-button>
+        }
+      </div>
+      @if (submitError) {
+        <div class="p-2 mb-2 surface-100 border-round text-red-600 text-sm">
+          {{ submitError }}
+        </div>
+      }
+    </div>
+    <ng-template #footer>
+      <p-button
+        label="Cancel"
+        [text]="true"
+        severity="secondary"
+        (click)="cancelDialog()"
+        [disabled]="submitLoading"
+      />
+      <p-button
+        label="Save"
+        [outlined]="true"
+        severity="secondary"
+        (click)="addShow()"
+        [loading]="submitLoading"
+        [disabled]="submitLoading"
+      />
+    </ng-template>
+  </p-dialog>
+</div>

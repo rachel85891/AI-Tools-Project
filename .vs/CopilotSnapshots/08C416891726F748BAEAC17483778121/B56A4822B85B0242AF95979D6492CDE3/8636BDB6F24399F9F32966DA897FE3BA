@@ -1,0 +1,74 @@
+﻿using System.Net.Http.Json;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
+using DTOs;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Entities;
+using Repositories;
+using System.Threading.Tasks;
+using System.Net;
+
+namespace Tests
+{
+    public class UserAuthenticationTests : IClassFixture<WebApplicationFactory<WebApiShop.Startup>>
+    {
+        private readonly WebApplicationFactory<WebApiShop.Startup> _factory;
+        private readonly Microsoft.Data.Sqlite.SqliteConnection _connection;
+
+        public UserAuthenticationTests(WebApplicationFactory<WebApiShop.Startup> factory)
+        {
+            // create and open a single in-memory sqlite connection that will be used by the test server
+            _connection = new Microsoft.Data.Sqlite.SqliteConnection("DataSource=:memory:");
+            _connection.Open();
+
+            _factory = factory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureServices(services =>
+                {
+                    // Remove any existing registrations for the app's DbContext so we can replace with Sqlite
+                    services.RemoveAll(typeof(DbContextOptions<ShowsCenterContext>));
+                    services.RemoveAll(typeof(ShowsCenterContext));
+
+                    // Register Sqlite-backed context using the open connection
+                    services.AddDbContext<ShowsCenterContext>(options =>
+                    {
+                        options.UseSqlite(_connection);
+                    });
+                });
+            });
+
+            // Create client to force host build, then initialize the database
+            var client = _factory.CreateClient();
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ShowsCenterContext>();
+                db.Database.EnsureCreated();
+            }
+        }
+
+        [Fact]
+        public async Task Register_SavesHashedPassword_AndLoginSucceeds()
+        {
+            var client = _factory.CreateClient();
+
+            var register = new UserCreateDTO("T","U","int_test@example.com","000000000","my-secret-123");
+            var resp = await client.PostAsJsonAsync("/api/Users/user", register);
+            Assert.Equal(HttpStatusCode.Created, resp.StatusCode);
+
+            // Check database to ensure stored password is not plain
+            using var scope = _factory.Services.CreateScope();
+            var repo = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+            var user = await repo.getUserByEmail(register.EmailAddress);
+            Assert.NotNull(user);
+            Assert.NotEqual(register.Password, user.Password);
+            // Basic sanity: stored password should look like a bcrypt hash (starts with $2)
+            Assert.StartsWith("$2", user.Password);
+
+            // Now login
+            var login = new UserLoginDTO(register.EmailAddress, register.Password);
+            var loginResp = await client.PostAsJsonAsync("/api/Users/loginUser", login);
+            Assert.Equal(HttpStatusCode.OK, loginResp.StatusCode);
+        }
+    }
+}

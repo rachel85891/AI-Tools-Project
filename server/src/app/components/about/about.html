@@ -1,0 +1,149 @@
+<!-- <div class="about-container">
+  <div class="about-hero">
+    <h1>אודות Shows Center</h1>
+    <p class="hero-subtitle">הפלטפורמה המובילה לרכישת כרטיסים למופעים בישראל</p>
+  </div>
+  
+  <section class="about-section">
+    <div class="section-icon">
+      <i class="pi pi-star"></i>
+    </div>
+    <h2>מי אנחנו</h2>
+    <p>
+      Shows Center היא פלטפורמה חדשנית המספקת חוויית רכישה מתקדמת ונוחה לכרטיסים למופעים.
+      אנו מחברים בין מארגני אירועים לקהל הרחב, ויוצרים חוויות בלתי נשכחות.
+    </p>
+    <p>
+      עם ממשק ידידותי, מערכת בחירת מקומות אינטראקטיבית ותהליך תשלום מאובטח,
+      אנו הופכים את רכישת הכרטיסים לחוויה פשוטה ומהנה.
+    </p>
+  </section>
+  
+  <section class="features-grid">
+    <div class="feature-card">
+      <i class="pi pi-shield"></i>
+      <h3>תשלום מאובטח</h3>
+      <p>מערכת תשלומים מאובטחת ומוגנת ברמה הגבוהה ביותר</p>
+    </div>
+    <div class="feature-card">
+      <i class="pi pi-mobile"></i>
+      <h3>נוח ונגיש</h3>
+      <p>ממשק ידידותי הפועל בצורה מושלמת על כל המכשירים</p>
+    </div>
+    <div class="feature-card">
+      <i class="pi pi-ticket"></i>
+      <h3>מגוון מופעים</h3>
+      <p>מבחר עשיר של מופעים, הצגות וקונצרטים</p>
+    </div>
+    <div class="feature-card">
+      <i class="pi pi-users"></i>
+      <h3>שירות לקוחות</h3>
+      <p>צוות תמיכה מסור זמין לעזרה בכל שאלה</p>
+    </div>
+  </section>
+  
+  <section class="contact-section">
+    <h2>צור קשר</h2>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <i class="pi pi-envelope"></i>
+        <h3>אימייל</h3>
+        <p>info@showscenter.com</p>
+        <p>support@showscenter.com</p>
+      </div>
+      <div class="contact-card">
+        <i class="pi pi-phone"></i>
+        <h3>טלפון</h3>
+        <p>03-1234567</p>
+        <p>ימים א'-ה', 9:00-18:00</p>
+      </div>
+      <div class="contact-card">
+        <i class="pi pi-map-marker"></i>
+        <h3>כתובת</h3>
+        <p>רחוב הבידור 123</p>
+        <p>תל אביב, ישראל</p>
+      </div>
+    </div>
+  </section>
+</div> -->
+<div class="vibrant-about" dir="rtl">
+  
+  <header class="hero-v4">
+    <div class="energy-bg"></div>
+    <div class="particles">
+      <div class="particle p1"></div>
+      <div class="particle p2"></div>
+      <div class="particle p3"></div>
+    </div>
+    
+    <div class="hero-content">
+      <div class="pulse-icon">
+        <i class="pi pi-play"></i>
+      </div>
+      
+      <h1 class="gradient-text">Shows Center</h1>
+      <p class="hero-subtitle">המרכז החדש לחוויות שמרגשות את הלב</p>
+      
+      <div class="hero-stats">
+        <div class="stat-card">
+          <span class="stat-number">1M+</span>
+          <span class="stat-label">משתמשים</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-card">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">אירועים בחודש</span>
+        </div>
+      </div>
+      
+      <div class="scroll-badge">
+        <span>גלו עוד</span>
+        <i class="pi pi-chevron-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrapper">
+    <section class="reviews-section">
+      <h2 class="section-title">מה אומרים עלינו?</h2>
+      <div class="reviews-grid">
+        @for (rev of testimonials; track rev.name) {
+          <div class="review-card">
+            <div class="quote-icon">"</div>
+            <p class="text">{{ rev.text }}</p>
+            <div class="user-info">
+              <div class="avatar">{{ rev.avatar }}</div>
+              <div class="details">
+                <span class="name">{{ rev.name }}</span>
+                <span class="role">{{ rev.role }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="live-features">
+      <div class="grid-container">
+        @for (f of features; track f.title) {
+          <div class="live-card" [style.border-bottom-color]="f.color">
+            <div class="icon-circle" [style.background]="f.color">
+              <i class="pi" [ngClass]="f.icon"></i>
+            </div>
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.desc }}</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="story-v4">
+    <div class="story-card-glass">
+      <div class="badge-new">LIVE</div>
+      <h2>המהפכה כבר כאן</h2>
+      <p>אנחנו משתמשים בטכנולוגיות העדכניות ביותר כדי לוודא שחוויית הרכישה שלכם תהיה מהירה, בטוחה ומרגשת.</p>
+      <button class="action-btn">בואו נתחיל <i class="pi pi-arrow-left"></i></button>
+    </div>
+  </section>
+  </main>
+</div>

@@ -1,0 +1,130 @@
+<div class="cart-page" dir="rtl">
+  @if (!isLoggedIn) {
+    <div class="cart-empty">
+      <p class="cart-empty-oops">אופסס</p>
+      <p class="cart-empty-msg">אין לך כרטיסים בסל</p>
+      <a routerLink="/login" class="cart-empty-login">הכנס כדי לראות את הכרטיסים שלך</a>
+    </div>
+  } @else if (!hasAnyCartItems) {
+    <div class="cart-empty">
+      <p class="cart-empty-oops">אופסס</p>
+      <p class="cart-empty-msg">אין לך כרטיסים בסל</p>
+      <a routerLink="/shows" class="cart-empty-login">עבור למופעים</a>
+    </div>
+  } @else {
+    <div class="cart-layout">
+      <aside class="cart-summary">
+        <div class="cart-user">
+          <span class="cart-user-icon">☺</span>
+          <span class="cart-user-label">פרטי משתמש</span>
+        </div>
+        <div class="cart-total">
+          <span class="cart-total-label">הסכום לתשלום:</span>
+          <span class="cart-total-value">{{ totalToPay }}₪</span>
+        </div>
+        <p-button
+          label="מעבר לתשלום"
+          styleClass="w-full"
+          [disabled]="!hasPayableItems"
+          routerLink="/checkout"
+        ></p-button>
+      </aside>
+
+      <main class="cart-items">
+        @if (unpaidCartItems().length > 0) {
+          <section class="cart-section">
+            <div class="cart-section-head">
+              <h2 class="cart-section-title">כרטיסים לתשלום</h2>
+              <span class="cart-section-count">{{ unpaidCartItems().length }}</span>
+            </div>
+            <div class="cart-section-list">
+              @for (seat of unpaidCartItems(); track seat.id ?? seatKey(seat)) {
+                @let show = getShow(seat.showId);
+                <p-card styleClass="cart-item-card">
+                  <div class="cart-item-body">
+                    <div class="cart-item-image">
+                      <img
+                        [src]="
+                          show?.imgUrl
+                            ? 'https://localhost:44304/' + (show?.imgUrl ?? '')
+                            : 'default.png'
+                        "
+                        alt=""
+                      />
+                    </div>
+                    <div class="cart-item-details">
+                      <p class="cart-item-title">{{ show?.title ?? 'שם מופע' }}</p>
+                      <p class="cart-item-meta">מקום: {{ seat.section }}</p>
+                      <p class="cart-item-meta">{{ show?.date | date: 'dd/MM/yyyy' }}</p>
+                      <p class="cart-item-seat">
+                        שורה: {{ seat.row + 1 }} כיסא: {{ seat.col + 1 }}
+                      </p>
+                    </div>
+                    <div class="cart-item-status status-saved">
+                      <span class="status-dot"></span>
+                      <span class="status-text">שמור לך!</span>
+                      <span class="status-hint">הזדרז להזמין...</span>
+                    </div>
+                    <div class="cart-item-price">{{ getSeatPrice(seat) }}₪</div>
+                    <div class="cart-item-actions">
+                      <button
+                        type="button"
+                        class="cart-btn cart-btn-remove"
+                        (click)="removeSeat(seat)"
+                        title="הסר מהסל"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                </p-card>
+              }
+            </div>
+          </section>
+        }
+
+        @if (paidUpcomingItems.length > 0) {
+          <section class="cart-section">
+            <div class="cart-section-head">
+              <h2 class="cart-section-title">כרטיסים ששולמו (מופעים קרובים)</h2>
+              <span class="cart-section-count">{{ paidUpcomingItems.length }}</span>
+            </div>
+            <div class="cart-section-list">
+              @for (seat of paidUpcomingItems; track seat.id ?? seatKey(seat)) {
+                @let show = getShow(seat.showId);
+                <p-card styleClass="cart-item-card">
+                  <div class="cart-item-body">
+                    <div class="cart-item-image">
+                      <img
+                        [src]="
+                          show?.imgUrl
+                            ? 'https://localhost:44304/' + (show?.imgUrl ?? '')
+                            : 'default.png'
+                        "
+                        alt=""
+                      />
+                    </div>
+                    <div class="cart-item-details">
+                      <p class="cart-item-title">{{ show?.title ?? 'שם מופע' }}</p>
+                      <p class="cart-item-meta">מקום: {{ seat.section }}</p>
+                      <p class="cart-item-meta">{{ show?.date | date: 'dd/MM/yyyy' }}</p>
+                      <p class="cart-item-seat">
+                        שורה: {{ seat.row + 1 }} כיסא: {{ seat.col + 1 }}
+                      </p>
+                    </div>
+                    <div class="cart-item-status status-paid">
+                      <span class="status-dot"></span>
+                      <span class="status-text">שולם</span>
+                      <span class="status-hint">כרטיס קיים, לא לרכישה חוזרת</span>
+                    </div>
+                    <div class="cart-item-price">{{ getSeatPrice(seat) }}₪</div>
+                  </div>
+                </p-card>
+              }
+            </div>
+          </section>
+        }
+      </main>
+    </div>
+  }
+</div>

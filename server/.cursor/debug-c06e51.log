@@ -1,0 +1,49 @@
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771536540174}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771536540176}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771536543621}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771536545706}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771536545707}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771536547375}
+{"sessionId":"c06e51","location":"add-show.ts:showDialog","message":"showDialog calling loadProviders","data":{},"hypothesisId":"H2","timestamp":1771536557033}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":2},"hypothesisId":"H4","timestamp":1771536557034}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771536567709}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":0,"willSet":false},"timestamp":1771536698761,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771536698834}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771536698836}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":5,"willSet":true},"timestamp":1771536700604,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:after set show","message":"show set to first (deferred)","data":{"showId":1030},"timestamp":1771536700611,"hypothesisId":"H1","runId":"post-fix"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":true,"showsLength":5,"willSet":false},"timestamp":1771536701099,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771536701109}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":0,"willSet":false},"timestamp":1771536701943,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536701944,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771536701997}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771536701997}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536702438,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536702637,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":5,"willSet":true},"timestamp":1771536705814,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:after set show","message":"show set to first (deferred)","data":{"showId":1030},"timestamp":1771536705818,"hypothesisId":"H1","runId":"post-fix"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":true,"showsLength":5,"willSet":false},"timestamp":1771536705891,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771536710913}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":0,"willSet":false},"timestamp":1771536772861,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536772862,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771536772920}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771536772921}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536774676,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771536775259,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":0,"willSet":false},"timestamp":1771706923725,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771706923730,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771706924182}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771706924228}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771706925745,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771706926139,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":0,"willSet":false},"timestamp":1771707958412,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771707958425,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"add-show.ts:ngOnInit","message":"ngOnInit calling loadProviders","data":{},"hypothesisId":"H1","timestamp":1771707959192}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders","message":"loadProviders entered","data":{"providersLengthBefore":0},"hypothesisId":"H4","timestamp":1771707959208}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771707961176,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":false},"timestamp":1771707961757,"hypothesisId":"H2"}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":false,"showsLength":5,"willSet":true},"timestamp":1771707966010,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:after set show","message":"show set to first (deferred)","data":{"showId":1030},"timestamp":1771707966047,"hypothesisId":"H1","runId":"post-fix"}
+{"sessionId":"c06e51","location":"add-show.ts:loadProviders.next","message":"about to assign providers","data":{"incomingCount":2},"hypothesisId":"H5","timestamp":1771707967451}
+{"sessionId":"c06e51","location":"seats-map.ts:subscribe","message":"shows$ emit","data":{"hadShow":true,"showsLength":5,"willSet":false},"timestamp":1771707967460,"hypothesisId":"H1"}
+{"sessionId":"c06e51","location":"seats-map.ts:ngDoCheck","message":"CD run","data":{"showTruthy":true},"timestamp":1771707969301,"hypothesisId":"H2"}

@@ -1,0 +1,95 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  (onHide)="hideDialog()"
+  class="quick-dialog"
+>
+  <ng-template #header>
+    <div class="inline-flex items-center justify-center gap-2">
+      <span class="font-bold whitespace-nowrap">הוסף מפיק חדש</span>
+    </div>
+  </ng-template>
+
+  <div class="dialog-form" dir="rtl">
+  <div class="flex items-center gap-4 mb-2 mt-1">
+    <p-floatlabel variant="on">
+      <input
+        pInputText
+        id="providerName"
+        style="width: 31ch"
+        class="flex-auto"
+        autocomplete="off"
+        [(ngModel)]="name"
+      />
+      <label for="providerName">שם המפיק</label>
+    </p-floatlabel>
+  </div>
+
+  <div class="flex items-center mb-2">
+    <p-floatlabel variant="on">
+      <p-fileUpload
+        #fileUpload
+        mode="basic"
+        chooseLabel="בחר תמונה"
+        accept="image/*"
+        maxFileSize="1000000"
+        [auto]="true"
+        [customUpload]="true"
+        (onSelect)="onFileSelected($event)"
+        [showUploadButton]="false"
+        [showCancelButton]="false"
+        fileLimit="1"
+      />
+    </p-floatlabel>
+  </div>
+
+  <div class="mt-3 relative flex flex-column items-center">
+    @if (imagePreviewSignal()) {
+      <img
+        [src]="imagePreviewSignal()"
+        class="rounded-circle shadow-lg"
+        style="
+          width: 100px;
+          height: 100px;
+          object-fit: cover;
+          border: 3px solid var(--primary-color);
+        "
+      />
+      <p-button
+        icon="pi pi-times"
+        severity="danger"
+        [rounded]="true"
+        [text]="true"
+        size="small"
+        label="מחק תמונה"
+        (onClick)="removeImage(fileUpload)"
+      />
+    }
+  </div>
+
+  @if (submitError) {
+    <div class="dialog-error p-2 mb-2 border-round text-sm">
+      {{ submitError }}
+    </div>
+  }
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      label="ביטול"
+      [text]="true"
+      severity="secondary"
+      (click)="hideDialog()"
+      [disabled]="submitLoading"
+    />
+    <p-button
+      label="שמור"
+      [outlined]="true"
+      severity="secondary"
+      (click)="addProvider()"
+      [loading]="submitLoading"
+      [disabled]="submitLoading || !name"
+    />
+  </ng-template>
+</p-dialog>

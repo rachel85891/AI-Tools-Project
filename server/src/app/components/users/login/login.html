@@ -1,0 +1,222 @@
+<div class="auth-page" dir="rtl">
+  <section class="auth-hero">
+    <img src="logo.png" alt="Shows Center" class="hero-logo" />
+    <h1>ברוכים הבאים ל-Shows Center</h1>
+    <p>התחברו לחשבון שלכם כדי להמשיך לסל, לנהל הזמנות ולעקוב אחרי המופעים הבאים שלכם.</p>
+  </section>
+
+  <section class="auth-panel surface-form">
+    <h2>כניסה לחשבון</h2>
+    <p class="auth-subtitle">אין לך חשבון? <a routerLink="/signup">הרשמה מהירה</a></p>
+
+    <div class="form-grid">
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="email1"
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          class="w-full"
+          autocomplete="email"
+          (input)="loginError.set('')"
+        />
+        <label for="email1">כתובת דוא"ל</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on">
+        <p-password
+          inputId="password1"
+          [(ngModel)]="pass"
+          [toggleMask]="true"
+          autocomplete="current-password"
+          [feedback]="false"
+          [inputStyleClass]="'w-full'"
+          [styleClass]="'w-full'"
+          (ngModelChange)="loginError.set('')"
+        />
+        <label for="password1">סיסמה</label>
+      </p-floatLabel>
+    </div>
+
+    <div class="auth-actions">
+      <label class="remember-wrap">
+        <p-checkbox id="rememberme1" [binary]="true"></p-checkbox>
+        <span>זכור אותי</span>
+      </label>
+      <button type="button" class="link-btn" (click)="openForgotPasswordDialog()">
+        שכחת סיסמה?
+      </button>
+    </div>
+
+    @if (loginError()) {
+      <div class="auth-error">
+        {{ loginError() }}
+      </div>
+    }
+
+    <button
+      pButton
+      pRipple
+      label="התחברות"
+      icon="pi pi-user"
+      class="w-full"
+      (click)="login()"
+    ></button>
+  </section>
+</div>
+
+<p-dialog
+  [(visible)]="forgotPasswordVisible"
+  [header]="
+    forgotPasswordStep === 1
+      ? 'איפוס סיסמה'
+      : forgotPasswordStep === 2
+        ? 'הזן קוד וסיסמה חדשה'
+        : 'הסיסמה עודכנה'
+  "
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '24rem' }"
+  (onHide)="closeForgotPasswordDialog()"
+  [dismissableMask]="true"
+>
+  @if (forgotPasswordStep === 1) {
+    <div class="form-grid" dir="rtl">
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="fp-email"
+          type="email"
+          [(ngModel)]="forgotPasswordEmail"
+          class="w-full"
+        />
+        <label for="fp-email">כתובת דוא"ל</label>
+      </p-floatLabel>
+      @if (forgotPasswordError) {
+        <small class="field-error">{{ forgotPasswordError }}</small>
+      }
+      <p-button
+        label="שלח קוד לאימייל"
+        (click)="sendResetCode()"
+        [loading]="sendingCode"
+      ></p-button>
+    </div>
+  } @else if (forgotPasswordStep === 2) {
+    <div class="form-grid" dir="rtl">
+      <p-floatLabel variant="on">
+        <input
+          pInputText
+          id="fp-code"
+          type="text"
+          [(ngModel)]="forgotPasswordCode"
+          class="w-full"
+        />
+        <label for="fp-code">קוד אימות</label>
+      </p-floatLabel>
+      <p-floatLabel variant="on">
+        <p-password
+          inputId="fp-newpass"
+          [(ngModel)]="forgotPasswordNewPass"
+          [feedback]="true"
+          [toggleMask]="true"
+          [inputStyleClass]="'w-full'"
+          [styleClass]="'w-full'"
+        />
+        <label for="fp-newpass">סיסמה חדשה</label>
+      </p-floatLabel>
+      @if (forgotPasswordError) {
+        <small class="field-error">{{ forgotPasswordError }}</small>
+      }
+      <p-button
+        label="עדכן סיסמה"
+        (click)="submitNewPassword()"
+        [loading]="resettingPassword"
+      ></p-button>
+    </div>
+  } @else {
+    <p class="reset-success">הסיסמה עודכנה בהצלחה. ניתן להתחבר עם הסיסמה החדשה.</p>
+    <p-button label="סגור" (click)="closeForgotPasswordDialog()"></p-button>
+  }
+</p-dialog>
+
+<p-dialog
+  [(visible)]="cleanupDialogVisible"
+  [header]="'ניהול מופעים ישנים'"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '34rem' }"
+>
+  <div dir="rtl" class="cleanup-dialog">
+    @if (!cleanupSelectionMode) {
+      <p class="cleanup-intro">
+        נמצאו {{ cleanupCandidateShows.length }} מופעים שהסתיימו לפני יותר משבועיים.
+      </p>
+      <p class="cleanup-intro">האם למחוק את כולם?</p>
+      @if (cleanupError) {
+        <small class="field-error">{{ cleanupError }}</small>
+      }
+      <div class="cleanup-actions">
+        <p-button
+          label="מחק את כולם"
+          severity="danger"
+          (click)="deleteAllOldShows()"
+          [loading]="cleanupActionInProgress"
+        ></p-button>
+        <p-button
+          label="בחירה ידנית"
+          [outlined]="true"
+          (click)="openCleanupSelectionMode()"
+          [disabled]="cleanupActionInProgress"
+        ></p-button>
+        <p-button
+          label="המשך ללא מחיקה"
+          [text]="true"
+          (click)="skipCleanupAndContinue()"
+          [disabled]="cleanupActionInProgress"
+        ></p-button>
+      </div>
+    } @else {
+      <p class="cleanup-intro">בחר מופע אחד או יותר למחיקה:</p>
+      <div class="cleanup-show-list">
+        @for (show of cleanupCandidateShows; track show.id) {
+          <label class="cleanup-show-row" [for]="'cleanup-show-' + show.id">
+            <p-checkbox
+              [inputId]="'cleanup-show-' + show.id"
+              [value]="show.id"
+              [(ngModel)]="selectedCleanupShowIds"
+            ></p-checkbox>
+            <span class="cleanup-show-title">{{ show.title }}</span>
+            <small class="cleanup-show-date"
+              >{{ show.date | date: 'dd.MM.yyyy' }} | {{ show.endTime }}</small
+            >
+          </label>
+        }
+      </div>
+      @if (cleanupError) {
+        <small class="field-error">{{ cleanupError }}</small>
+      }
+      <div class="cleanup-actions">
+        <p-button
+          label="מחק נבחרים"
+          severity="danger"
+          (click)="deleteSelectedOldShows()"
+          [loading]="cleanupActionInProgress"
+        ></p-button>
+        <p-button
+          label="חזור"
+          [outlined]="true"
+          (click)="backToCleanupQuestion()"
+          [disabled]="cleanupActionInProgress"
+        ></p-button>
+        <p-button
+          label="המשך ללא מחיקה"
+          [text]="true"
+          (click)="skipCleanupAndContinue()"
+          [disabled]="cleanupActionInProgress"
+        ></p-button>
+      </div>
+    }
+  </div>
+</p-dialog>

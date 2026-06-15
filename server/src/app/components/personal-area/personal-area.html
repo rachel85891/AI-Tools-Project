@@ -1,0 +1,330 @@
+<div class="personal-page" dir="rtl">
+  @if (loadError()) {
+    <div class="state-card error-state">{{ loadError() }}</div>
+  } @else if (user(); as u) {
+    <section class="hero-card">
+      <div class="hero-main">
+        <p class="hero-kicker">האזור האישי</p>
+        <h1>שלום {{ userFullName() || 'משתמש' }}</h1>
+        <p class="hero-subtitle">כאן אפשר לנהל את הפרופיל ולעקוב אחרי כל ההזמנות במקום אחד.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="label">סה"כ הזמנות</span>
+          <strong>{{ orderCount() }}</strong>
+        </div>
+        <div class="stat-item">
+          <span class="label">פריטים שהוזמנו</span>
+          <strong>{{ orderedItemsCount() }}</strong>
+        </div>
+        <div class="stat-item">
+          <span class="label">סה"כ תשלומים</span>
+          <strong>{{ totalSpent() }}₪</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel-card edit-panel">
+        <h2>עדכון פרטים</h2>
+        <div class="edit-form">
+          <p-floatLabel variant="on">
+            <input
+              pInputText
+              id="pfname"
+              type="text"
+              [(ngModel)]="editUser.firstName"
+              autocomplete="given-name"
+              name="pfname"
+              class="w-full"
+            />
+            <label for="pfname">שם פרטי</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on">
+            <input
+              pInputText
+              id="plname"
+              type="text"
+              [(ngModel)]="editUser.lastName"
+              name="plname"
+              class="w-full"
+              autocomplete="family-name"
+            />
+            <label for="plname">שם משפחה</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on">
+            <input
+              pInputText
+              id="pphone"
+              type="tel"
+              [(ngModel)]="editUser.phoneNumber"
+              name="pphone"
+              class="w-full"
+              autocomplete="tel"
+            />
+            <label for="pphone">מספר טלפון</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on">
+            <input
+              pInputText
+              id="pemail"
+              type="email"
+              [(ngModel)]="editUser.emailAddress"
+              name="pemail"
+              class="w-full"
+              autocomplete="email"
+            />
+            <label for="pemail">כתובת דוא"ל</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on">
+            <p-password
+              [(ngModel)]="newPassword"
+              [toggleMask]="true"
+              placeholder="השאר ריק אם לא לשנות"
+              [feedback]="false"
+              autocomplete="new-password"
+            />
+            <label>סיסמה חדשה (אופציונלי)</label>
+          </p-floatLabel>
+
+          <button
+            pButton
+            pRipple
+            [label]="saving() ? 'שומר...' : 'שמירת פרטים'"
+            icon="pi pi-check"
+            class="w-full"
+            [disabled]="saving()"
+            (click)="save()"
+          ></button>
+        </div>
+      </div>
+
+      <div class="panel-card orders-panel">
+        <div class="orders-headline">
+          <h2>ההזמנות שלי</h2>
+          <span class="orders-count">{{ orderCount() }} הזמנות</span>
+        </div>
+
+        @if (loadingOrders()) {
+          <p class="state-note">טוען הזמנות...</p>
+        } @else if (orders().length === 0) {
+          <p class="state-note">אין עדיין הזמנות להצגה.</p>
+        } @else {
+          <div class="orders-list">
+            @for (order of orders(); track order.id) {
+              <article class="order-card">
+                <div class="order-top">
+                  <div>
+                    <h3>הזמנה #{{ order.id }}</h3>
+                    <p class="order-date">
+                      @if (getOrderDisplayDate(order); as orderDate) {
+                        {{ orderDate | date: 'dd/MM/yyyy HH:mm' }}
+                      } @else {
+                        ללא תאריך
+                      }
+                    </p>
+                  </div>
+                  <img
+                    class="order-show-thumb"
+                    [src]="getOrderPreviewImage(order)"
+                    [alt]="getShowTitle(order.items[0]?.showId ?? 0)"
+                  />
+                </div>
+
+                <div class="order-meta">
+                  <span>{{ order.items.length }} פריטים</span>
+                  <strong>{{ getOrderDisplayTotal(order) }}₪</strong>
+                </div>
+
+                <div class="order-preview">
+                  @for (item of order.items.slice(0, 2); track item.id) {
+                    <p>{{ getShowTitle(item.showId) }} | שורה {{ item.row + 1 }}, כיסא {{ item.col + 1 }}</p>
+                  }
+                  @if (order.items.length > 2) {
+                    <p class="more-items">+{{ order.items.length - 2 }} פריטים נוספים</p>
+                  }
+                </div>
+
+                <button
+                  pButton
+                  pRipple
+                  label="צפייה בפרטי הזמנה"
+                  icon="pi pi-eye"
+                  (click)="openOrderDetails(order)"
+                ></button>
+              </article>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    @if (isAdmin()) {
+      <section class="admin-management-section">
+        <h2>ניהול קטגוריות ומפיקים (מנהל)</h2>
+        <p class="admin-intro">כאן ניתן להוסיף, לערוך ולמחוק קטגוריות ומפיקים.</p>
+
+        @if (adminDataError()) {
+          <p class="error-msg">{{ adminDataError() }}</p>
+        } @else if (adminDataLoading()) {
+          <p class="loading-msg">טוען נתוני ניהול...</p>
+        } @else {
+          <div class="management-grid">
+            <article class="management-card">
+              <div class="management-card-head">
+                <h3>קטגוריות</h3>
+                <p-button
+                  label="הוספת קטגוריה"
+                  icon="pi pi-plus"
+                  size="small"
+                  (click)="addCategoryRef.showDialog()"
+                />
+              </div>
+              @if (categories().length === 0) {
+                <p class="empty-msg">אין קטגוריות להצגה.</p>
+              } @else {
+                <div class="management-list">
+                  @for (category of categories(); track category.id) {
+                    <div class="management-row">
+                      <input
+                        pInputText
+                        type="text"
+                        [(ngModel)]="categoryDraftById[category.id]"
+                        class="w-full"
+                      />
+                      <div class="management-row-actions">
+                        <p-button
+                          icon="pi pi-check"
+                          size="small"
+                          severity="success"
+                          [rounded]="true"
+                          [text]="true"
+                          (onClick)="saveCategory(category)"
+                        />
+                        <p-button
+                          icon="pi pi-trash"
+                          size="small"
+                          severity="danger"
+                          [rounded]="true"
+                          [text]="true"
+                          (onClick)="deleteCategory(category)"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+
+            <article class="management-card">
+              <div class="management-card-head">
+                <h3>מפיקים</h3>
+                <p-button
+                  label="הוספת מפיק"
+                  icon="pi pi-plus"
+                  size="small"
+                  (click)="addProviderRef.showDialog()"
+                />
+              </div>
+              @if (providers().length === 0) {
+                <p class="empty-msg">אין מפיקים להצגה.</p>
+              } @else {
+                <div class="management-list">
+                  @for (provider of providers(); track provider.id) {
+                    <div class="management-row with-image">
+                      <img [src]="getProviderImage(provider)" class="provider-avatar" alt="provider image" />
+                      <input
+                        pInputText
+                        type="text"
+                        [(ngModel)]="providerDraftById[provider.id]"
+                        class="w-full"
+                      />
+                      <div class="management-row-actions">
+                        <p-button
+                          icon="pi pi-check"
+                          size="small"
+                          severity="success"
+                          [rounded]="true"
+                          [text]="true"
+                          (onClick)="saveProvider(provider)"
+                        />
+                        <p-button
+                          icon="pi pi-trash"
+                          size="small"
+                          severity="danger"
+                          [rounded]="true"
+                          [text]="true"
+                          (onClick)="deleteProvider(provider)"
+                        />
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </article>
+          </div>
+        }
+
+        <app-add-category #addCategoryRef (categoryAdded)="onCategoryAdded($event)" />
+        <app-add-provider #addProviderRef (providerAdded)="onProviderAdded($event)" />
+      </section>
+    }
+  } @else {
+    <div class="state-card">טוען...</div>
+  }
+</div>
+
+@if (selectedOrder(); as order) {
+  <div class="modal-backdrop" (click)="closeOrderDetails()">
+    <div class="order-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>פרטי הזמנה #{{ order.id }}</h3>
+          <p>
+            @if (getOrderDisplayDate(order); as orderDate) {
+              {{ orderDate | date: 'dd/MM/yyyy HH:mm' }}
+            } @else {
+              ללא תאריך
+            }
+          </p>
+        </div>
+        <button class="close-btn" type="button" (click)="closeOrderDetails()">×</button>
+      </div>
+
+      <div class="modal-items">
+        @for (item of order.items; track item.id) {
+          <div class="modal-item">
+            <img
+              class="modal-item-thumb"
+              [src]="getShowImage(item.showId)"
+              [alt]="getShowTitle(item.showId)"
+            />
+            <div class="modal-item-content">
+              <h4>{{ getShowTitle(item.showId) }}</h4>
+              <p>מקום: שורה {{ item.row + 1 }}, כיסא {{ item.col + 1 }}</p>
+              @if (getShowDate(item.showId); as showDate) {
+                <p>
+                  תאריך מופע: {{ showDate | date: 'dd/MM/yyyy' }}
+                  @if (getShowTime(item.showId)) {
+                    בשעה {{ getShowTime(item.showId) }}
+                  }
+                </p>
+              }
+              <p>סטטוס: {{ orderStatusLabel(item.status) }}</p>
+            </div>
+            <strong>{{ getItemDisplayPrice(item) }}₪</strong>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <span>סה"כ הזמנה:</span>
+        <strong>{{ getOrderDisplayTotal(order) }}₪</strong>
+      </div>
+    </div>
+  </div>
+}

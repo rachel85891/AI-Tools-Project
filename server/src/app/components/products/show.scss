@@ -1,0 +1,175 @@
+;:host {
+  display: block;
+}
+
+.shows-page {
+  display: block;
+}
+
+.shows-upcoming {
+  margin-bottom: 0.5rem;
+}
+
+h3 {
+  margin-bottom: 0.9rem;
+  font-size: 1.28rem;
+}
+
+.shows-layout {
+  align-items: start;
+}
+
+.shows-main {
+  min-width: 0;
+}
+
+.shows-toolbar {
+  align-items: center;
+}
+
+.searchBox .p-inputtext {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  padding: 0.72rem 1rem 0.72rem 2.6rem;
+}
+
+.searchBox .p-inputtext:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgb(var(--primary-rgb) / 0.12);
+}
+
+:host ::ng-deep .show-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+:host ::ng-deep .show-card .p-card-body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+:host ::ng-deep .show-card .p-card-content {
+  flex: 1;
+}
+
+:host ::ng-deep .show-card-compact .p-card-body {
+  padding: 0.85rem;
+}
+
+.cardImg {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  transition: transform 0.25s ease;
+}
+
+.show-card-wrap {
+  position: relative;
+  height: 100%;
+}
+
+.show-card-mask {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 0.58);
+  backdrop-filter: blur(2px);
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(1.02rem, 1.3vw, 1.18rem);
+  font-weight: 800;
+  padding: 0.6rem 0.95rem;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  pointer-events: none;
+  z-index: 10;
+  border-radius: var(--radius-lg);
+}
+
+.show-card:hover .cardImg {
+  transform: scale(1.015);
+}
+
+.buttons {
+  display: flex;
+  gap: 0.48rem;
+}
+
+.buttons .p-button {
+  border-radius: var(--radius-sm);
+}
+
+:host ::ng-deep .show-action-past.p-button,
+:host ::ng-deep .show-action-soldout.p-button {
+  border-width: 1px;
+}
+
+:host ::ng-deep .show-action-past.p-button {
+  border-color: #d8e2f3;
+  background: #f3f7ff;
+  color: #3b4c68;
+}
+
+:host ::ng-deep .show-action-soldout.p-button {
+  border-color: #f7c6ce;
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.shows-filters {
+  position: sticky;
+  top: 0.7rem;
+  height: fit-content;
+}
+
+:host ::ng-deep .filter-card .p-card-body {
+  padding: 0.95rem;
+}
+
+:host ::ng-deep .filter-card .p-card-title {
+  margin-bottom: 0.6rem;
+  font-size: 0.99rem;
+}
+
+:host ::ng-deep .p-paginator {
+  margin: 0.2rem 0.5rem 0;
+  background: #fff;
+}
+
+:host ::ng-deep .p-carousel .p-carousel-item {
+  padding: 0.4rem;
+}
+
+:host ::ng-deep .p-drawer .p-drawer-header {
+  background: var(--surface-50);
+  color: var(--text-primary);
+}
+
+:host ::ng-deep .p-drawer .p-drawer-header .p-drawer-title {
+  font-size: 1.12rem;
+}
+
+@media (max-width: 768px) {
+  .grid .col-8,
+  .grid .col-4 {
+    width: 100%;
+  }
+
+  .shows-filters {
+    position: static;
+  }
+
+  :host ::ng-deep .show-card .p-card-body {
+    padding: 0.85rem;
+  }
+
+  .show-card-mask {
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+  }
+}

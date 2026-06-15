@@ -1,0 +1,323 @@
+:host {
+  display: block;
+}
+
+.show-details-page {
+  padding: 0.3rem 0.15rem 0.8rem;
+}
+
+.show-hero {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.show-image-wrap {
+  min-height: 300px;
+}
+
+.show-image {
+  min-height: 300px;
+  max-height: 460px;
+}
+
+.show-visual-mask {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 0.58);
+  backdrop-filter: blur(2px);
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(1.08rem, 1.4vw, 1.28rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.45;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  padding: 0.65rem 1rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.show-category {
+  color: var(--text-secondary);
+}
+
+.show-title {
+  color: var(--text-primary);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.show-date,
+.show-time {
+  color: var(--text-secondary);
+}
+
+.show-description {
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.show-tags {
+  color: var(--primary-color);
+}
+
+.show-status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.85rem;
+}
+
+.show-status-icon {
+  font-size: 1.05rem;
+  margin-top: 0.15rem;
+}
+
+.show-status-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+}
+
+.show-status-note {
+  font-size: 0.86rem;
+  margin-top: 0.12rem;
+}
+
+.show-status-ended {
+  border-color: #f5d0a9;
+  background: #fff5e8;
+  color: #9a4e0b;
+}
+
+.show-status-soldout {
+  border-color: #fbc9cf;
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.availability-title {
+  color: var(--text-primary);
+}
+
+.availability-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.availability-card {
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 0.45rem 0.5rem 0.5rem;
+  text-align: center;
+  line-height: 1.2;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.availability-card:hover {
+  border-color: #cddbf4;
+  box-shadow: var(--shadow-sm);
+}
+
+.availability-name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.availability-price {
+  font-size: 1.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  margin: 0.15rem 0 0.25rem;
+}
+
+.availability-count-text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.availability-count {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0 0.08rem;
+}
+
+.availability-card-warning .availability-count {
+  color: #7c2d12;
+}
+
+.availability-card-critical .availability-count {
+  color: #991b1b;
+}
+
+.availability-card-warning {
+  border-color: #f59e0b;
+  background: #fff8e6;
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.22);
+}
+
+.availability-card-warning .availability-name,
+.availability-card-warning .availability-price,
+.availability-card-warning .availability-count-text {
+  color: #9a3412;
+}
+
+.availability-card-critical {
+  border-color: #dc2626;
+  background: #fff1f2;
+  box-shadow: inset 0 0 0 1px rgba(220, 38, 38, 0.24);
+}
+
+.availability-card-critical .availability-name,
+.availability-card-critical .availability-price,
+.availability-card-critical .availability-count-text {
+  color: #991b1b;
+}
+
+.availability-card-soldout {
+  border-color: #fbc9cf;
+  background: #fff1f2;
+  box-shadow: inset 0 0 0 1px rgba(244, 63, 94, 0.16);
+}
+
+.availability-card-soldout .availability-name,
+.availability-card-soldout .availability-price,
+.availability-card-soldout .availability-count-text,
+.availability-card-soldout .availability-count {
+  color: #9f1239;
+}
+
+@media (min-width: 992px) {
+  .availability-list {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+}
+
+.tag {
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid #bfd0ee;
+  color: #194ca8;
+  background: #eef4ff;
+  font-size: 0.86rem;
+}
+
+.provider-row {
+  color: var(--text-secondary);
+}
+
+.show-cta-row {
+  border-top: 1px solid var(--border-light);
+}
+
+.show-cta-note {
+  line-height: 1.4;
+}
+
+.show-countdown {
+  color: var(--primary-color);
+  letter-spacing: 0.04em;
+}
+
+.related-block h2 {
+  border-right: 4px solid var(--primary-color);
+  color: var(--text-primary);
+}
+
+.related-card {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  width: 260px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.related-card-mask {
+  position: absolute;
+  inset: 0;
+  background: rgb(15 23 42 / 0.58);
+  backdrop-filter: blur(2px);
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  font-weight: 800;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
+  text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+  padding: 0.6rem 0.9rem;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.related-thumb {
+  height: 120px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #e8eef9;
+}
+
+.related-title {
+  color: var(--text-primary);
+}
+
+.related-date {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 768px) {
+  .show-image-wrap {
+    min-height: 220px;
+  }
+
+  .show-image {
+    max-height: 280px;
+  }
+
+  .availability-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .availability-name {
+    font-size: 0.82rem;
+  }
+
+  .availability-price {
+    font-size: 1.6rem;
+  }
+
+  .availability-count-text {
+    font-size: 0.78rem;
+  }
+
+  .availability-count {
+    font-size: 0.95rem;
+  }
+
+  .show-visual-mask {
+    font-size: 1rem;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .related-card-mask {
+    font-size: 0.98rem;
+    padding: 0.5rem 0.75rem;
+  }
+}

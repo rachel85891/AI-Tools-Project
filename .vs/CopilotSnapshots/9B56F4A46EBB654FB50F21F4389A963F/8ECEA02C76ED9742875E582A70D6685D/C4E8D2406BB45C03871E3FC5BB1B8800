@@ -1,0 +1,46 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using DTOs;
+using Entities;
+using Moq;
+using Repositories;
+using AutoMapper;
+using Services;
+using Xunit;
+
+namespace Tests
+{
+    public class OrderServiceUnitTests
+    {
+        private readonly Mock<IOrderRepository> _repoMock;
+        private readonly Mock<IMapper> _mapperMock;
+        private readonly OrderService _service;
+
+        public OrderServiceUnitTests()
+        {
+            _repoMock = new Mock<IOrderRepository>();
+            _mapperMock = new Mock<IMapper>();
+            _service = new OrderService(_repoMock.Object, _mapperMock.Object);
+        }
+        [Fact]
+        public async Task GetAllOrders_ReturnsMappedDTOs()
+        {            var orders = new List<Order> { new Order { Id = 1, Price = 10 }, new Order { Id = 2, Price = 20 } };
+            _repoMock.Setup(r => r.getAllOrders()).ReturnsAsync(orders);
+            _mapperMock
+                .Setup(m => m.Map<List<Order>, List<OrderDTO>>(It.IsAny<List<Order>>() ))
+                .Returns((List<Order> src) => src.Select(o => new OrderDTO(o.Id, o.OrderDate, (decimal)o.Price, "F", new List<OrderedSeatReadDTO>())).ToList());
+            var result = await _service.getAllOrders();
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);            Assert.Contains(result, r => r.Id == 1);            _repoMock.Verify(r => r.getAllOrders(), Times.Once);            _mapperMock.Verify(m => m.Map<List<Order>, List<OrderDTO>>(orders), Times.Once);        }
+        [Fact]
+        public async Task Checkout_RepositoryCalled_MapsResult()
+        {            var checkoutDto = new CheckoutDTO(1, 0);
+            var orderEntity = new Order { Id = 3, Price = 0 };
+            _repoMock.Setup(r => r.Checkout(checkoutDto)).ReturnsAsync(orderEntity);            _mapperMock.Setup(m => m.Map<Order, OrderDTO>(orderEntity)).Returns(new OrderDTO(3, orderEntity.OrderDate, (decimal)orderEntity.Price, "F", new List<OrderedSeatReadDTO>()));            var result = await _service.Checkout(checkoutDto);
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Id);
+            _repoMock.Verify(r => r.Checkout(checkoutDto), Times.Once);
+        }
+    }
+}

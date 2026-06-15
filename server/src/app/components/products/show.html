@@ -1,0 +1,353 @@
+<div class="shows-page" dir="rtl">
+  @if (!authService.isAdmin()) {
+    <div class="col-12 shows-upcoming">
+      <h3>אירועים קרובים:</h3>
+      <p-carousel
+        [value]="upcomingShows"
+        [numVisible]="4"
+        [responsiveOptions]="responsiveOptions"
+        [numScroll]="1"
+        [circular]="true"
+        [autoplayInterval]="3000"
+      >
+        <ng-template let-p pTemplate="item">
+          <div class="mb-1 p-2 flex flex-row-reverse align-items-center justify-content-center">
+            <div class="show-card-wrap h-full">
+              <p-card styleClass="show-card show-card-compact flex flex-column h-full">
+                <ng-template #header>
+                  <img
+                    alt="Card"
+                    class="w-full cardImg"
+                    [src]="p.imgUrl ? 'https://localhost:44304/' + p.imgUrl : 'default.png'"
+                    style="height: 120px; object-fit: cover"
+                  />
+                </ng-template>
+                <ng-template #title>
+                  <div class="text-xs text-color-secondary mb-1">
+                    {{ showSrv.categoryById(p.categoryId) }}
+                  </div>
+                  <div [style]="{ 'font-size': '15px' }">
+                    {{ p.title }}
+                  </div>
+                </ng-template>
+                <ng-template #subtitle
+                  ><div class="flex-grow-1">
+                    {{ p.beginTime }} | {{ p.date | date: 'dd.MM.yyyy' }}
+                  </div></ng-template
+                >
+                <ng-template #content>
+                  {{ $any(TargetAudience)[p.audience] }}
+                </ng-template>
+                <ng-template #footer>
+                  <div class="flex gap-2 buttons">
+                    <p-button
+                      icon="pi pi-ellipsis-h"
+                      styleClass="h-full"
+                      (click)="openShow(p.id)"
+                    />
+                    @if (p.isPast) {
+                      <p-button
+                        label="המופע כבר התקיים"
+                        class="flex-grow-1"
+                        styleClass="h-full p-1 show-action-past"
+                        [disabled]="true"
+                        [style]="{ 'font-size': '13px' }"
+                      />
+                    } @else if (p.isFull) {
+                      <p-button
+                        label="כל הכרטיסים אזלו"
+                        class="flex-grow-1"
+                        styleClass="h-full p-1 show-action-soldout"
+                        [disabled]="true"
+                        [style]="{ 'font-size': '13px' }"
+                      />
+                    } @else {
+                      <p-button
+                        label="לבחירת מקום החל מ-{{ p.cheapestPrice }}₪"
+                        class="flex-grow-1"
+                        styleClass="h-full p-1"
+                        (click)="toChoosePlace(p.id)"
+                        [style]="{ 'font-size': '13px' }"
+                      />
+                    }
+                  </div>
+                </ng-template>
+              </p-card>
+              @if (p.isPast || p.isFull) {
+                <div class="show-card-mask">
+                  {{ p.isPast ? 'המופע הסתיים' : 'כל הכרטיסים אזלו' }}
+                </div>
+              }
+            </div>
+            <div class="flex justify-center"></div>
+          </div>
+        </ng-template>
+      </p-carousel>
+    </div>
+  }
+  <div class="shows-layout grid">
+    <div class="shows-main col-8 md:col-9 lg:col-9 xl:col-10">
+      <h3>כל האירועים:</h3>
+      <div class="shows-toolbar grid flex w-full mr-auto ml-auto gap-2">
+        <div class="flex-1 col-6">
+          <p-iconField iconPosition="left" class="searchBox">
+            <p-inputIcon styleClass="pi pi-search" />
+            <input
+              type="text"
+              pInputText
+              placeholder="חפש מופע..."
+              [(ngModel)]="searchTerm"
+              (input)="applyFilters()"
+              class="w-full"
+            />
+          </p-iconField>
+        </div>
+        @if (authService.isAdmin()) {
+          <div class="mr-auto">
+            <app-add-show (showReady)="addShow($event)"></app-add-show>
+          </div>
+        }
+      </div>
+      @if (showsLoadError) {
+        <p class="p-3 text-red-600 bg-red-50 border-round border-1 border-red-200">
+          {{ showsLoadError }}
+        </p>
+      }
+      <!-- <p-dataView [value]="shows" [sortField]="sortField" [sortOrder]="sortOrder">
+      <ng-template pTemplate="grid" let-items>-->
+      <div class="grid p-3">
+        <!-- @for (p of items; track p.id) {  -->
+        @for (p of shows; track p.id) {
+          <div class="col-12 md:col-6 lg:col-4 xl:col-4">
+            <div class="show-card-wrap h-full">
+              <p-card styleClass="show-card flex flex-column h-full">
+                <ng-template #header>
+                  <img
+                    alt="Card"
+                    class="w-full cardImg"
+                    [src]="p.imgUrl ? 'https://localhost:44304/' + p.imgUrl : 'default.png'"
+                    style="height: 200px; object-fit: cover"
+                  />
+                </ng-template>
+                <ng-template #title>
+                  <div class="text-xs text-color-secondary mb-1">
+                    {{ showSrv.categoryById(p.categoryId) }}
+                  </div>
+                  <div class="h-3rem">
+                    {{ p.title }}
+                  </div>
+                </ng-template>
+                <ng-template #subtitle>
+                  <div class="flex-1">{{ p.beginTime }} | {{ p.date | date: 'dd.MM.yyyy' }}</div>
+                </ng-template>
+                <ng-template #content>
+                  <div class="col-12 grid gap-2 flex-grow-1">
+                    <span class="bg-blue-50 text-blue-700 px-2 py-1 border-round">{{
+                      p.audience
+                    }}</span>
+                    <span class="bg-pink-50 text-pink-700 px-2 py-1 border-round">{{
+                      p.sector
+                    }}</span>
+                  </div>
+                </ng-template>
+                <ng-template #footer>
+                  <div class="flex gap-2 buttons">
+                    <p-button
+                      icon="pi pi-ellipsis-h"
+                      styleClass="h-full"
+                      (click)="openShow(p.id)"
+                    />
+
+                    @if (authService.isAdmin()) {
+                      <p-button
+                        icon="pi pi-times"
+                        id="deleteShow"
+                        class="w-full"
+                        styleClass="w-full"
+                        (click)="deleteShow(p.id)"
+                      />
+                      <p-button
+                        icon="pi pi-pencil"
+                        id="editShow"
+                        class="w-full"
+                        styleClass="w-full"
+                        (click)="editShow(p.id)"
+                      />
+                    } @else if (p.isPast) {
+                      <p-button
+                        label="המופע כבר התקיים"
+                        class="flex-grow-1"
+                        styleClass="h-full p-2 show-action-past"
+                        [disabled]="true"
+                      />
+                    } @else if (p.isFull) {
+                      <p-button
+                        label="כל הכרטיסים אזלו"
+                        class="flex-grow-1"
+                        styleClass="h-full p-2 show-action-soldout"
+                        [disabled]="true"
+                      />
+                    } @else {
+                      <p-button
+                        label="לבחירת מקום החל מ-{{ p.cheapestPrice }}₪"
+                        class="flex-grow-1"
+                        styleClass="h-full p-2"
+                        (click)="toChoosePlace(p.id)"
+                      />
+                    }
+                  </div>
+                </ng-template>
+              </p-card>
+              @if (p.isPast || p.isFull) {
+                <div class="show-card-mask">
+                  {{ p.isPast ? 'המופע הסתיים' : 'כל הכרטיסים אזלו' }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+      <p-paginator
+        [first]="(currentPage - 1) * pageSize"
+        [rows]="pageSize"
+        [totalRecords]="totalRecords"
+        (onPageChange)="onPageChange($event)"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="עמוד {currentPage} מתוך {totalPages}"
+        styleClass="mt-3"
+      />
+      <!-- </ng-template>
+    </p-dataView> -->
+    </div>
+    <div class="shows-filters col-4 md:col-3 lg:col-3 xl:col-2 pl-3 pr-0 gap-2 flex flex-column">
+      <p-card styleClass="filter-card mb-2 shadow-1">
+        <ng-template #content>
+          <p-button
+            label="נקה סינון"
+            icon="pi pi-filter-slash"
+            styleClass="w-full p-button-outlined"
+            (click)="clearFilters()"
+          ></p-button>
+        </ng-template>
+      </p-card>
+      <!-- sorting -->
+      <p-card header="מיון מופעים" styleClass="filter-card mb-2 shadow-1">
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon"><i class="pi pi-sort-alt"></i></span>
+          <p-select
+            [options]="sortOptions"
+            placeholder="מיין לפי..."
+            (onChange)="onSortChange($event)"
+            styleClass="w-full"
+          >
+          </p-select>
+        </div>
+      </p-card>
+      <!-- price- from... to... -->
+      <p-card styleClass="filter-card">
+        <ng-template #subtitle
+          >טווח מחירים: {{ priceRange[0] }}₪ - {{ priceRange[1] }}₪</ng-template
+        >
+        <ng-template #content>
+          <p-slider
+            [(ngModel)]="priceRange"
+            [range]="true"
+            [min]="0"
+            [max]="1000"
+            (onChange)="onPriceRangeChange($event)"
+            styleClass="w-full"
+          >
+          </p-slider>
+        </ng-template>
+      </p-card>
+      <p-card styleClass="filter-card">
+        <ng-template #title> סינון לפי קטגוריות:</ng-template>
+        <ng-template #content>
+          <div class="flex flex-column gap-1">
+            @for (category of categories; track category.id) {
+              <div class="flex gap-2">
+                <p-checkbox
+                  name="group1"
+                  [value]="category.id"
+                  [(ngModel)]="selectedCategories"
+                  [inputId]="category.id.toString()"
+                  (onChange)="applyFilters()"
+                >
+                </p-checkbox>
+                <label [for]="category.id.toString()" class="ml-2"> {{ category.name }} </label>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </p-card>
+      <p-card styleClass="filter-card">
+        <ng-template #title>סינון לפי קהל יעד:</ng-template>
+        <ng-template #content>
+          <div class="flex flex-column gap-1">
+            @for (a of audiences; track a) {
+              <div class="flex align-items-center">
+                <p-checkbox
+                  name="group1"
+                  [value]="a"
+                  [(ngModel)]="selectedAudiences"
+                  [inputId]="a.toString()"
+                  (onChange)="applyFilters()"
+                >
+                </p-checkbox>
+                <label [for]="a" class="ml-2"> {{ a }} </label>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </p-card>
+      <p-card styleClass="filter-card">
+        <ng-template #title>סינון לפי מגזר:</ng-template>
+        <ng-template #content>
+          <div class="flex flex-column gap-1">
+            @for (s of sectors; track s) {
+              <div class="">
+                <p-checkbox
+                  name="group1"
+                  [value]="s"
+                  [(ngModel)]="selectedSectors"
+                  [inputId]="s.toString()"
+                  (onChange)="applyFilters()"
+                >
+                </p-checkbox>
+                <label [for]="s" class="ml-2"> {{ s }} </label>
+              </div>
+            }
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <div class="flex justify-center">
+    <p-drawer [header]="pTitle" [(visible)]="visible" [fullScreen]="true">
+      <app-show-show
+        [showId]="pId"
+        (openSeatsMap)="openSeatsDrawer($event)"
+        (openShowDetails)="openShowDetailsFromDrawer($event)"
+      ></app-show-show>
+    </p-drawer>
+    <p-drawer
+      [header]="'בחירת מקום – ' + seatsDrawerTitle"
+      [(visible)]="seatsDrawerVisible"
+      [fullScreen]="true"
+    >
+      @if (seatsDrawerShowId) {
+        <app-seats-map
+          [showId]="seatsDrawerShowId"
+          (goToCartClick)="closeSeatsDrawerAndGoToCart()"
+        ></app-seats-map>
+      }
+    </p-drawer>
+    <app-edit-show
+      #editShowRef
+      [show]="showToEdit"
+      [showTriggerButton]="false"
+      (showUpdated)="updateShow($event)"
+    />
+  </div>
+</div>

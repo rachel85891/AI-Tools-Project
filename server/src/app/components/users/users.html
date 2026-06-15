@@ -1,0 +1,26 @@
+<div class="users-shell">
+  <div class="users-switch">
+    <button
+      pButton
+      type="button"
+      [text]="signupVisible"
+      [outlined]="!signupVisible"
+      label="כניסה"
+      (click)="signupVisible = false"
+    ></button>
+    <button
+      pButton
+      type="button"
+      [text]="!signupVisible"
+      [outlined]="signupVisible"
+      label="הרשמה"
+      (click)="signupVisible = true"
+    ></button>
+  </div>
+
+  @if (signupVisible) {
+    <app-signup></app-signup>
+  } @else {
+    <app-login></app-login>
+  }
+</div>

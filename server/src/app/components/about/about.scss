@@ -1,0 +1,456 @@
+// .about-container {
+//   min-height: 100%;
+//   padding: 0.5rem 0 1.5rem;
+//   border-radius: var(--radius-xl);
+//   overflow: hidden;
+//   border: 1px solid var(--border-color);
+//   background: var(--bg-primary);
+// }
+
+// .about-hero {
+//   background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+//   color: var(--text-primary);
+//   text-align: center;
+//   padding: 4.8rem 2rem 3.6rem;
+//   position: relative;
+//   overflow: hidden;
+
+//   &::before {
+//     display: none;
+//   }
+
+//   h1 {
+//     font-size: 3rem;
+//     font-weight: 700;
+//     margin-bottom: 0.7rem;
+//     color: var(--text-primary);
+//     position: relative;
+//     z-index: 1;
+//   }
+
+//   .hero-subtitle {
+//     font-size: 1.15rem;
+//     opacity: 1;
+//     color: var(--text-secondary);
+//     max-width: 640px;
+//     margin: 0 auto;
+//     position: relative;
+//     z-index: 1;
+//   }
+// }
+
+// .about-section {
+//   padding: 3rem 2rem 2.4rem;
+//   max-width: 860px;
+//   margin: 0 auto;
+//   text-align: center;
+
+//   .section-icon {
+//     width: 68px;
+//     height: 68px;
+//     background: #eff6ff;
+//     border: 1px solid #bfdbfe;
+//     border-radius: 50%;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     margin: 0 auto 2rem;
+//     box-shadow: none;
+
+//     i {
+//       font-size: 2rem;
+//       color: var(--primary-color);
+//     }
+//   }
+
+//   h2 {
+//     font-size: 2.1rem;
+//     color: var(--text-primary);
+//     margin-bottom: 2rem;
+//     font-weight: 600;
+//   }
+
+//   p {
+//     font-size: 1.04rem;
+//     line-height: 1.75;
+//     color: var(--text-secondary);
+//     margin-bottom: 1.5rem;
+//   }
+// }
+
+// .features-grid {
+//   display: grid;
+//   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+//   gap: 1.3rem;
+//   padding: 1rem 1.6rem 2.8rem;
+//   max-width: 1200px;
+//   margin: 0 auto;
+// }
+
+// .feature-card {
+//   background: white;
+//   padding: 2rem 1.5rem;
+//   border-radius: var(--border-radius-lg);
+//   box-shadow: var(--shadow-sm);
+//   text-align: center;
+//   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+//   border: 1px solid var(--border-color);
+
+//   &:hover {
+//     border-color: var(--primary-color);
+//     box-shadow: var(--shadow-md);
+//   }
+
+//   i {
+//     font-size: 2.4rem;
+//     color: var(--primary-color);
+//     margin-bottom: 1.5rem;
+//     display: block;
+//   }
+
+//   h3 {
+//     font-size: 1.3rem;
+//     color: var(--text-primary);
+//     margin-bottom: 1rem;
+//     font-weight: 600;
+//   }
+
+//   p {
+//     color: var(--text-secondary);
+//     line-height: 1.6;
+//   }
+// }
+
+// .contact-section {
+//   background: var(--background-secondary);
+//   padding: 2.8rem 2rem;
+//   text-align: center;
+
+//   h2 {
+//     font-size: 2rem;
+//     margin-bottom: 2rem;
+//     font-weight: 600;
+//   }
+// }
+
+// .contact-grid {
+//   display: grid;
+//   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+//   gap: 2rem;
+//   max-width: 900px;
+//   margin: 0 auto;
+// }
+
+// .contact-card {
+//   background: white;
+//   padding: 2rem 1.5rem;
+//   border-radius: var(--border-radius-lg);
+//   box-shadow: var(--shadow-sm);
+//   transition: border-color 0.2s ease;
+//   border: 1px solid var(--border-color);
+
+//   &:hover {
+//     border-color: #bfdbfe;
+//   }
+
+//   i {
+//     font-size: 2rem;
+//     color: var(--primary-color);
+//     margin-bottom: 1.5rem;
+//     display: block;
+//   }
+
+//   h3 {
+//     font-size: 1.2rem;
+//     color: var(--text-primary);
+//     margin-bottom: 1rem;
+//     font-weight: 600;
+//   }
+
+//   p {
+//     color: var(--text-secondary);
+//     margin-bottom: 0.5rem;
+//     line-height: 1.5;
+//   }
+// }
+
+// @media (max-width: 768px) {
+//   .about-hero {
+//     padding: 4.2rem 1rem 3.2rem;
+
+//     h1 {
+//       font-size: 2.15rem;
+//     }
+
+//     .hero-subtitle {
+//       font-size: 1rem;
+//     }
+//   }
+
+//   .about-section {
+//     padding: 2rem 1rem;
+
+//     h2 {
+//       font-size: 1.7rem;
+//     }
+//   }
+
+//   .features-grid {
+//     grid-template-columns: 1fr;
+//     padding: 0.8rem 1rem 2rem;
+//   }
+
+//   .contact-section {
+//     padding: 2rem 1rem;
+
+//     h2 {
+//       font-size: 1.7rem;
+//     }
+//   }
+
+//   .contact-grid {
+//     grid-template-columns: 1fr;
+//   }
+// }
+// פלטת צבעים - כחולים בלבד
+// פלטת צבעים "חיה"
+// פלטת צבעים חשמלית
+$electric-blue: #0070f3;
+$cyan: #00dfd8;
+$purple: #7928ca;
+$deep-blue: #0a0a23;
+
+.vibrant-about {
+  background: #f8faff;
+  font-family: 'Assistant', 'Heebo', sans-serif;
+  overflow-x: hidden;
+}
+
+// Hero Section
+.hero-v4 {
+  height: 95vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: white;
+  text-align: center;
+
+  // הרקע שזז
+  .energy-bg {
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: linear-gradient(-45deg, $electric-blue, $purple, $cyan, $electric-blue);
+    background-size: 400% 400%;
+    animation: gradientShift 12s ease infinite;
+    z-index: 1;
+  }
+
+  // חלקיקים צפים
+  .particles {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none; // שלא יפריעו ללחיצות
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px); // הגדלנו את הטשטוש למראה רך
+      opacity: 0.15;      // הורדנו שקיפות כדי שיהיה עדין
+      animation: floatParticles 20s infinite alternate ease-in-out;
+    }
+    
+    // גדלים ומיקומים מעודכנים
+    .p1 { width: 600px; height: 600px; top: -10%; left: -10%; background: $cyan; }
+    .p2 { width: 500px; height: 500px; bottom: 5%; right: -5%; background: $purple; animation-delay: -7s; }
+    .p3 { width: 300px; height: 300px; top: 40%; left: 30%; background: white; opacity: 0.1; }
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    
+    .pulse-icon {
+      width: 70px; height: 70px;
+      background: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 2rem;
+      color: $electric-blue;
+      font-size: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    .gradient-text {
+      font-size: 7rem;
+      font-weight: 900;
+      letter-spacing: -4px;
+      margin: 0;
+      line-height: 0.9;
+      text-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    }
+
+    .hero-subtitle {
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin: 2rem 0 4rem;
+      opacity: 0.9;
+    }
+  }
+}
+
+// קפסולת הסטטיסטיקה
+.hero-stats {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  padding: 1.5rem 4rem;
+  border-radius: 100px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 3rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  .stat-card {
+    .stat-number { font-size: 2.8rem; font-weight: 900; display: block; line-height: 1; }
+    .stat-label { font-size: 1rem; font-weight: 500; opacity: 0.8; }
+  }
+  .stat-divider { width: 1px; height: 50px; background: white; opacity: 0.2; }
+}
+
+// אנימציות רקע
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatParticles {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(100px, 100px) scale(1.2); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(255,255,255,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+
+// סקשן המלצות (Testimonials)
+.reviews-section {
+  padding: 10rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  .section-title { text-align: center; font-size: 3rem; margin-bottom: 5rem; font-weight: 800; color: #1e293b; }
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 3rem;
+}
+
+.review-card {
+  background: white;
+  padding: 3rem;
+  border-radius: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+  position: relative;
+  transition: 0.4s ease;
+  &:hover { transform: translateY(-15px); box-shadow: 0 30px 60px rgba(0,112,243,0.1); }
+  
+  .quote-icon { font-size: 4rem; color: $electric-blue; opacity: 0.1; position: absolute; top: 10px; right: 20px; }
+  .text { font-size: 1.15rem; line-height: 1.7; color: #475569; position: relative; }
+  
+  .user-info {
+    display: flex; align-items: center; margin-top: 2.5rem;
+    .avatar { width: 55px; height: 55px; border-radius: 50%; background: $electric-blue; color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; margin-left: 1rem; }
+    .name { display: block; font-weight: 800; font-size: 1.1rem; }
+    .role { font-size: 0.85rem; color: #94a3b8; }
+  }
+}
+
+// Live Cards
+.live-features {
+  padding: 5rem 2rem;
+  .grid-container {
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;
+  }
+}
+
+.live-card {
+  background: white; padding: 4rem 2rem; border-radius: 40px; text-align: center; border-bottom: 8px solid;
+  animation: breathe 5s infinite ease-in-out;
+  .icon-circle { width: 80px; height: 80px; border-radius: 25px; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; color: white; font-size: 2rem; transform: rotate(-5deg); }
+  h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; }
+  p { color: #64748b; line-height: 1.6; }
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+// Story / CTA
+.story-v4 {
+  padding: 12rem 2rem;
+  // במקום תמונה, נשתמש בגרדיאנט עמוק שמתכתב עם ה-Hero
+  background: radial-gradient(circle at center, #1e3a8a 0%, #020617 100%);
+  display: flex; 
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  // הוספת "אורות" עדינים בצדדים כדי שירגיש חי
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%; height: 100%;
+    top: 0; left: 0;
+    background: radial-gradient(circle at 10% 10%, rgba(0, 223, 216, 0.1), transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(121, 40, 202, 0.1), transparent 40%);
+    pointer-events: none;
+  }
+  
+  .story-card-glass {
+    max-width: 800px; 
+    padding: 5rem 3rem; 
+    background: rgba(255, 255, 255, 0.05); // שקיפות עדינה מאוד
+    backdrop-filter: blur(25px); 
+    border-radius: 60px; 
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    text-align: center; 
+    color: white;
+    z-index: 2;
+
+    h2 { font-size: 3.5rem; font-weight: 900; margin-bottom: 1.5rem; }
+    p { font-size: 1.4rem; margin-bottom: 3rem; opacity: 0.9; line-height: 1.6; }
+    
+    .badge-new { 
+      background: #0070f3; // כחול חשמלי במקום אדום (יותר נקי)
+      color: white; 
+      padding: 0.5rem 1.5rem; 
+      border-radius: 50px; 
+      font-weight: 900; 
+      display: inline-block; 
+      margin-bottom: 1.5rem; 
+      box-shadow: 0 0 20px rgba(0, 112, 243, 0.4);
+    }
+  }
+}
+
+.action-btn {
+  background: white; color: $electric-blue; border: none; padding: 1.5rem 4rem; border-radius: 100px; font-weight: 900; font-size: 1.3rem; cursor: pointer; transition: 0.3s;
+  &:hover { transform: scale(1.1); box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .hero-v4 .hero-content .gradient-text { font-size: 3.5rem; }
+  .hero-stats { flex-direction: column; padding: 2rem; border-radius: 30px; }
+  .stat-divider { width: 60%; height: 1px; }
+}
