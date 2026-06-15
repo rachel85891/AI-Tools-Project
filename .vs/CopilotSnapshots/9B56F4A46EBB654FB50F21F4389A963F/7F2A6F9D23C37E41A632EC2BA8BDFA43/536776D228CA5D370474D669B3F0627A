@@ -1,40 +1,0 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
-using Entities;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Repositories;
-using Xunit;
-
-namespace Test
-{
-    public class OrderRepositoryIntegrationTests : IAsyncLifetime, IDisposable
-    {
-        private DbConnection _connection;
-        private ShowsCenterContext _context;
-        private OrderRepository _repository;
-
-        public async Task InitializeAsync()
-        {
-            _connection = new SqliteConnection("Filename=:memory:");
-            _connection.Open();
-            var options = new DbContextOptionsBuilder<ShowsCenterContext>()
-                .UseSqlite(_connection)
-            await _context.Database.EnsureCreatedAsync();
-            _repository = new OrderRepository(_context);
-        }
-        public async Task DisposeAsync()
-            }
-            if (_connection != null)
-            {                _connection.Close();
-                _connection.Dispose();
-        }
-        [Fact]
-        public async Task Checkout_HappyPath_ComputesSumAndUpdatesStatuses()
-        {        public async Task Checkout_UnhappyPath_NoOpenOrder_ReturnsNull()
-        {            var order = new Order { UserId = 600, OrderDate = DateTime.Now, Price = 0 };            _context.Orders.Add(order);            await _context.SaveChangesAsync();        [Fact]
-        public async Task AddOrderedSeat_Throws_WhenSeatAlreadyTaken()
-        {            var show = new Show { Title = "TakenShow", Sector = "A", Audience = "All" };        {            var show = new Show { Title = "SeatsShow", Sector = "A", Audience = "All" }; 
