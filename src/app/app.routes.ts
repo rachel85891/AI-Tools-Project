@@ -6,6 +6,7 @@ import { AboutComponent } from './components/about/about';
 import { CartComponent } from './components/cart/cart';
 import { PersonalAreaComponent } from './components/personal-area/personal-area';
 import { CheckoutComponent } from './components/checkout/checkout';
+import { DevHelpComponent } from './components/dev-help/dev-help';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/shows', pathMatch: 'full' },
@@ -16,5 +17,6 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'checkout', component: CheckoutComponent },
   { path: 'personal-area', component: PersonalAreaComponent },
+  { path: 'dev-help', component: DevHelpComponent },
   { path: '**', redirectTo: '/shows' },
 ];
