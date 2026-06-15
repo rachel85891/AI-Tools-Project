@@ -4,7 +4,11 @@ using Entities;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Microsoft.AspNetCore.Authorization;
+using Repositories;
+using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using Microsoft.AspNetCore.RateLimiting;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,16 +22,20 @@ namespace WebApiShop.Controllers
         IUserService _userService;
         IMapper _mapper;
         IAuth _auth;
+        IUserRepository _userRepository;
+        private readonly IPasswordService _passwordService;
         private readonly IForgotPasswordService _forgotPassword;
         private readonly IOrderConfirmationEmailService _orderConfirmationEmail;
-        public UsersController(IUserService userService, IMapper mapper, IAuth auth, IForgotPasswordService forgotPassword, IOrderConfirmationEmailService orderConfirmationEmail, ILogger<UsersController> logger)
+        public UsersController(IUserService userService, IMapper mapper, IAuth auth, IPasswordService passwordService, IForgotPasswordService forgotPassword, IOrderConfirmationEmailService orderConfirmationEmail, ILogger<UsersController> logger, IUserRepository userRepository)
         {
             _userService = userService;
             _mapper = mapper;
             _auth = auth;
+            _passwordService = passwordService;
             _forgotPassword = forgotPassword;
             _orderConfirmationEmail = orderConfirmationEmail;
             _logger = logger;
+            _userRepository = userRepository;
         }
 
 
@@ -50,6 +58,7 @@ namespace WebApiShop.Controllers
         
         // POST api/<UsersController>
         [HttpPost("user")]
+        [EnableRateLimiting("StrictSlidingPolicy")]
         public async  Task<ActionResult<UserReadDTO>> POST([FromBody] UserCreateDTO user)
         {
            UserReadDTO newUser = await _userService.addUser(user);
@@ -71,13 +80,36 @@ namespace WebApiShop.Controllers
 
         }
         [HttpPost("loginUser")]
+        [EnableRateLimiting("StrictSlidingPolicy")]
         public async Task<ActionResult<UserReadDTO>> GetLogin([FromBody] UserLoginDTO loginUser)
         {
             _logger.LogInformation($"Login attemted with email: {loginUser.EmailAddress}, password: {loginUser.Password}");
-            UserReadDTO user = await _userService.Login(loginUser);
-            if (user == null)
+
+            // Authenticate user via repository to obtain the entity needed for token generation
+            var userEntity = await _userRepository.getUserByEmail(loginUser.EmailAddress);
+            if (userEntity == null)
                 return NoContent();
-            return Ok(user);
+
+            // Verify password against stored hash
+            var verified = _passwordService.VerifyPassword(loginUser.Password, userEntity.Password);
+            if (!verified)
+                return Unauthorized();
+
+            // generate JWT and append as HttpOnly cookie
+            var token = await _userService.GenerateJwtToken(userEntity);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = false, // נשאר על false כל עוד אנחנו ב-HTTP רגיל
+                SameSite = SameSiteMode.Lax, // שינוי ל-Lax פותר בעיות חסימה בדפדפנים ב-localhost
+                Expires = DateTime.UtcNow.AddDays(7),
+                Path = "/" // מבטיח שהקוקי יהיה נגיש לכל השרת
+            };
+            Response.Cookies.Append("X-Access-Token", token, cookieOptions);
+
+            var userDto = _mapper.Map<User, UserReadDTO>(userEntity);
+            return Ok(userDto);
         }
 
         [HttpGet("isManger")]
@@ -93,6 +125,7 @@ namespace WebApiShop.Controllers
         //}
 
         [HttpPost("forgot-password")]
+        [EnableRateLimiting("StrictSlidingPolicy")]
         public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken ct)
         {
             var result = await _forgotPassword.RequestCodeAsync(request.Email ?? "", ct);
@@ -100,6 +133,7 @@ namespace WebApiShop.Controllers
         }
 
         [HttpPost("reset-password")]
+        [EnableRateLimiting("StrictSlidingPolicy")]
         public async Task<ActionResult<ResetPasswordResponse>> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken ct)
         {
             var result = await _forgotPassword.ResetPasswordAsync(
@@ -111,6 +145,7 @@ namespace WebApiShop.Controllers
         }
 
         [HttpPost("send-order-confirmation")]
+        [EnableRateLimiting("StrictSlidingPolicy")]
         public async Task<ActionResult<SendOrderConfirmationResponse>> SendOrderConfirmation(
             [FromBody] SendOrderConfirmationRequest request,
              CancellationToken ct)

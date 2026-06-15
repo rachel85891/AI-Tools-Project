@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ImagesController : ControllerBase
 {
     private readonly IWebHostEnvironment _environment;
@@ -12,6 +15,7 @@ public class ImagesController : ControllerBase
     }
 
     [HttpPost("upload")]
+    [EnableRateLimiting("StrictSlidingPolicy")]
     public async Task<IActionResult> UploadImage(IFormFile file)
     {
         if (file == null || file.Length == 0)

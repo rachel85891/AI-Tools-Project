@@ -1,4 +1,5 @@
 ﻿using DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
 using Services;
@@ -40,6 +41,7 @@ namespace WebApiShop.Controllers
 
         // POST api/<ShowsController>
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ShowReadDTO>> Post([FromBody] ShowCreateDTO show, int userId)
         {
             ShowReadDTO createdShow = await _showService.addShow(show,userId);
@@ -50,6 +52,7 @@ namespace WebApiShop.Controllers
 
         // PUT api/<ShowsController>/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ShowReadDTO>> Put(int id, [FromBody] ShowUpdateDTO show, int userId)
         {
             ShowReadDTO updatedShow = await _showService.updateShow(show, id, userId);
@@ -60,6 +63,7 @@ namespace WebApiShop.Controllers
 
         // DELETE api/<ShowsController>/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id, int userId)
         {
             var item = await _showService.getShowById(id);

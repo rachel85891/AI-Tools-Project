@@ -1,0 +1,16 @@
+bin/
+obj/
+**/.vs/
+**/.git/
+**/node_modules/
+**/dist/
+Dockerfile*
+*.md
+*.sql
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+**/TestResults/
+**/coverage/

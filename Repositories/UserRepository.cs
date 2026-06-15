@@ -45,7 +45,17 @@ namespace Repositories
         }
         public async Task<User> Login(User user)
         {
+            // Legacy login method matching on plain password (kept for compatibility/tests).
             return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress == user.EmailAddress && u.Password == user.Password);
+        }
+
+        public async Task<User> getUserByEmail(string email)
+        {
+            var normalized = email?.Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(normalized))
+                return null;
+
+            return await _context.Users.FirstOrDefaultAsync(u => u.EmailAddress.ToLower() == normalized);
         }
     }
 }

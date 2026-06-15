@@ -9,5 +9,6 @@ namespace Services
         Task<UserReadDTO> getUserById(int id);
         Task<UserReadDTO> UpdateUser(UserUpdateDTO userToUpdate, int id);
         Task<UserReadDTO> Login(UserLoginDTO user);
+        Task<string> GenerateJwtToken(Entities.User user);
     }
 }

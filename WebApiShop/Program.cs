@@ -7,12 +7,26 @@ using Repositories;
 using Services;
 using WebApiShop.Middleware;
 using WebApiShop.Middlewares;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ShowsCenter");
-builder.Services.AddDbContext<ShowsCenterContext>(options =>
-    options.UseSqlServer(connectionString));
+// In normal runs register SQL Server. In tests we want to override the DbContext with an in-memory Sqlite provider,
+// avoid registering SQL Server provider when running under the "Testing" environment to prevent multiple providers
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddDbContext<ShowsCenterContext>(options =>
+        options.UseSqlServer(connectionString));
+}
 // Add services to the container.
 //builder.Services.AddScoped<ILoginRepository, LoginRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -32,6 +46,27 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     }); 
 builder.Services.AddOpenApi();
+// Configure Swagger/OpenAPI with JWT Bearer security so the "Authorize" button is available in UI
+builder.Services.AddSwaggerGen(c =>
+{
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token or click 'Authorize' and paste: Bearer {token}"
+    };
+
+    c.AddSecurityDefinition("Bearer", securityScheme);
+
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        { securityScheme, new[] { "Bearer" } }
+    };
+    c.AddSecurityRequirement(securityRequirement);
+});
 //builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuth, Auth>();
@@ -42,6 +77,22 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProviderService, ProviderService>();
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IShowService, ShowService>();
+// Configure HybridCache (uses Redis as a distributed cache backing)
+// Ensure Redis:ConnectionString is present in configuration
+// 1. שליפת מחרוזת החיבור של רדיס מה-appsettings
+var redisConn = builder.Configuration["RedisCacheOptions:Configuration"];
+
+// 2. רישום ה-HybridCache הבסיסי של .NET 9
+builder.Services.AddHybridCache();
+
+// 3. חיבור לרדיס באמצעות המתודה הרשמית והיציבה
+if (!string.IsNullOrEmpty(redisConn))
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConn;
+    });
+}
 builder.Services.Configure<ForgotPasswordServiceOptions>(
     builder.Configuration.GetSection("PasswordReset"));
 builder.Services.Configure<EmailSenderOptions>(
@@ -61,17 +112,83 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Host.UseNLog();
 builder.Services.AddCors(options => {
     options.AddDefaultPolicy(policy => {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:8080", "http://localhost:44304")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // <--- השורה הזו חובה בשביל לאפשר קוקיז!
     });
+});
+
+// JWT Authentication
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"] ?? string.Empty;
+var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? string.Empty;
+var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? string.Empty;
+
+// Provide a fallback secret when running tests so the test host can build a signing key.
+if (string.IsNullOrEmpty(jwtSecret) && builder.Environment.IsEnvironment("Testing"))
+{
+    jwtSecret = "test-secret-key-do-not-use-in-production-0123456789";
+}
+
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = signingKey,
+        ValidateIssuer = !string.IsNullOrEmpty(jwtIssuer),
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = !string.IsNullOrEmpty(jwtAudience),
+        ValidAudience = jwtAudience,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromMinutes(2)
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // Try to get token from X-Access-Token cookie
+            var cookie = context.Request.Cookies["X-Access-Token"];
+            if (!string.IsNullOrEmpty(cookie))
+            {
+                context.Token = cookie;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    // הגדרת מדיניות (Policy) מסוג Sliding Window
+    options.AddSlidingWindowLimiter("MySlidingPolicy", opt =>
+    {
+        opt.PermitLimit = 10; // מקסימום 10 בקשות
+        opt.Window = TimeSpan.FromMinutes(1); // בתוך חלון זמן של דקה אחת
+        opt.SegmentsPerWindow = 3; // חלוקת הדקה ל-3 מקטעים (כלומר, בדיקה דינמית כל 20 שניות)
+        opt.QueueLimit = 2; // כמה בקשות יכולות להמתין בתור אם עברנו את המכסה (0 אומר לחסום מיד)
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    // מה קורה כשמשתמש נחסם? הגדרת קוד שגיאה 429
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 var app = builder.Build();
 
+app.UseRateLimiter();
 app.UseExceptionHandler();
-
 app.UseRating();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -89,8 +206,11 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
-app.UseAuthorization();
-
 app.MapControllers();
 
-app.Run();
+// When running under the integration test host we avoid calling Run() to let the test
+// infrastructure manage the host lifecycle. Tests set the environment to "Testing".
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.Run();
+}
