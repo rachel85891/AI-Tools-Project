@@ -129,11 +129,10 @@ var jwtIssuer = builder.Configuration["JwtSettings:Issuer"] ?? string.Empty;
 var jwtAudience = builder.Configuration["JwtSettings:Audience"] ?? string.Empty;
 
 // Provide a fallback secret when running tests so the test host can build a signing key.
-if (string.IsNullOrEmpty(jwtSecret) && builder.Environment.IsEnvironment("Testing"))
+if (string.IsNullOrWhiteSpace(jwtSecret))
 {
-    jwtSecret = "test-secret-key-do-not-use-in-production-0123456789";
+    throw new InvalidOperationException("Configuration value JwtSettings:SecretKey is missing. Set it in appsettings or environment variables.");
 }
-
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
 builder.Services.AddAuthentication(options =>

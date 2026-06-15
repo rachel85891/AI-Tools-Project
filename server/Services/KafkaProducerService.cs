@@ -46,10 +46,12 @@ namespace Services
                 var msg = new Message<string, string> { Key = null, Value = message };
                 var delivery = await _producer.ProduceAsync(topic, msg).ConfigureAwait(false);
 
-                if (delivery.Status == PersistenceStatus.NotPersisted || delivery.Error?.IsError == true)
+                // Some versions of Confluent.Kafka do not expose an Error property on DeliveryResult.
+                // Check the delivery status instead and log useful details.
+                if (delivery.Status != PersistenceStatus.Persisted)
                 {
-                    _logger?.LogError("Failed to deliver message to topic {topic}. Delivery: {delivery}", topic, delivery);
-                    throw new Exception($"Failed to deliver message to topic {topic}: {delivery?.Error}");
+                    _logger?.LogError("Failed to deliver message to topic {topic}. Delivery status: {status}, partition: {partition}, offset: {offset}", topic, delivery.Status, delivery.Partition, delivery.Offset);
+                    throw new Exception($"Failed to deliver message to topic {topic}. Delivery status: {delivery.Status}");
                 }
 
                 _logger?.LogDebug("Message delivered to topic {topic} partition {partition} offset {offset}", topic, delivery.Partition, delivery.Offset);
