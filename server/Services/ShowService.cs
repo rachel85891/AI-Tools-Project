@@ -90,13 +90,14 @@ namespace Services
                 cacheKey,
                 async cancelToken =>
                 {
+                    Console.WriteLine(">>> [LOG]: Fetching from SQL Server...");
                     var repoResult = await _repository.getAllShows(filters);
                     var showsDTO = _mapper.Map<IEnumerable<ShowReadDTO>>(repoResult.shows);
                     return (showsDTO, repoResult.total);
                 },
                 options: cacheOptions // כאן אנחנו מעבירים את ה-TTL
             );
-
+            Console.WriteLine(">>> [LOG]: Data served successfully.");
             return result;
         }
         public async Task<int?> Delete(int id, int userId)

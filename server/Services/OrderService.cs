@@ -20,6 +20,12 @@ namespace Services
         IMapper _mapper;
         private readonly IKafkaProducerService? _kafkaProducerService;
 
+        private static readonly System.Text.Json.JsonSerializerOptions _kafkaSerializerOptions =
+            new System.Text.Json.JsonSerializerOptions
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+            };
+
         public OrderService(IOrderRepository repository, IMapper mapper, IKafkaProducerService? kafkaProducerService = null)
         {
             _repository = repository;
@@ -59,13 +65,16 @@ namespace Services
             {
                 if (_kafkaProducerService != null)
                 {
-                    var json = System.Text.Json.JsonSerializer.Serialize(order);
+                    var json = System.Text.Json.JsonSerializer.Serialize(order, _kafkaSerializerOptions);
                     await _kafkaProducerService.SendMessageAsync(json);
                 }
             }
-            catch
-            {
+
                 // swallow Kafka errors to not break main flow
+                catch(Exception ex)
+            {
+                Console.WriteLine($"!!! KAFKA ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
             }
 
             OrderDTO orderDTO = _mapper.Map<Order, OrderDTO>(order);
@@ -91,13 +100,14 @@ namespace Services
             {
                 if (_kafkaProducerService != null)
                 {
-                    var json = System.Text.Json.JsonSerializer.Serialize(order);
+                    var json = System.Text.Json.JsonSerializer.Serialize(order, _kafkaSerializerOptions);
                     await _kafkaProducerService.SendMessageAsync(json);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                // ignore
+                Console.WriteLine($"!!! KAFKA ERROR: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
             }
 
             OrderDTO orderDTO = _mapper.Map<Order, OrderDTO>(order);
@@ -128,13 +138,14 @@ namespace Services
                     if (_kafkaProducerService != null)
                     {
                         var parentOrder = await _repository.getOrderById(os.OrderId);
-                        var json = System.Text.Json.JsonSerializer.Serialize(parentOrder);
+                        var json = System.Text.Json.JsonSerializer.Serialize(parentOrder, _kafkaSerializerOptions);
                         await _kafkaProducerService.SendMessageAsync(json);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    // ignore kafka errors
+                    Console.WriteLine($"!!! KAFKA ERROR: {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
                 }
 
                 return _mapper.Map<OrderedSeat, OrderedSeatReadDTO>(orderedSeat);
@@ -152,13 +163,14 @@ namespace Services
                 {
                     if (_kafkaProducerService != null)
                     {
-                        var json = System.Text.Json.JsonSerializer.Serialize(order);
+                        var json = System.Text.Json.JsonSerializer.Serialize(order, _kafkaSerializerOptions);
                         await _kafkaProducerService.SendMessageAsync(json);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    // ignore kafka errors
+                    Console.WriteLine($"!!! KAFKA ERROR: {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
                 }
 
                 OrderedSeat os = _mapper.Map<LockSeatDTO, OrderedSeat>(orderDTO);

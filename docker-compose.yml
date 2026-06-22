@@ -3,7 +3,7 @@ version: "3.8"
 services:
   webapishop:
     build:
-      context: .
+      context: ./server
       dockerfile: ./WebApiShop/Dockerfile
     ports:
       - "5000:80"
@@ -13,8 +13,8 @@ services:
       - JwtSettings__SecretKey=LocalDevelopmentSecretKey_ChangeThisToAStrongOne_2026!@#ZxYv9LpQ8rStUvWxYz1234567890
       - JwtSettings__Issuer=WebApiShopLocal
       - JwtSettings__Audience=WebApiShopLocalUsers
-      - RedisCacheOptions__Configuration=redis:6379,password=MY_SECRET_PASSWORD123!!!
-      - Kafka__BootstrapServers=kafka:9092
+      - Redis__ConnectionString=redis:6379,password=MY_SECRET_PASSWORD123!!!,connectTimeout=5000,syncTimeout=5000
+      - Kafka__BootstrapServers=kafka:29092
       - Kafka__TopicName=order-events
       - Email__SmtpHost=173.194.76.108
       - Email__SmtpPort=587
@@ -29,7 +29,7 @@ services:
       redis:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - showscenter-network
@@ -40,6 +40,8 @@ services:
     ports:
       - "6379:6379"
     command: ["redis-server", "--requirepass", "MY_SECRET_PASSWORD123!!!"]
+    volumes:
+      - redis_data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "MY_SECRET_PASSWORD123!!!", "ping"]
@@ -53,8 +55,10 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.0
     container_name: zookeeper
+    hostname: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_SYNC_LIMIT: 2
       ZOOKEEPER_INIT_LIMIT: 5
     ports:
@@ -66,20 +70,26 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.6.0
     container_name: kafka
-    ports:
-      - "9092:9092"
+    hostname: kafka
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECTION_TIMEOUT_MS: 60000
+      KAFKA_LISTENERS: PLAINTEXT_EXTERNAL://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT_EXTERNAL://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT_EXTERNAL:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_LOG_RETENTION_HOURS: 168
     depends_on:
       - zookeeper
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     networks:
       - showscenter-network
 
@@ -90,10 +100,20 @@ services:
       - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - showscenter-network
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "5540:5540"
     restart: unless-stopped
     networks:
       - showscenter-network

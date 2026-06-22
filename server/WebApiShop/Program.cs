@@ -79,20 +79,23 @@ builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<IShowService, ShowService>();
 // Configure HybridCache (uses Redis as a distributed cache backing)
 // Ensure Redis:ConnectionString is present in configuration
-// 1. שליפת מחרוזת החיבור של רדיס מה-appsettings
-var redisConn = builder.Configuration["RedisCacheOptions:Configuration"];
+// 1. שליפת מחרוזת החיבור המדויקת מה-JSON שלך (לפי המפתח "Redis:ConnectionString")
+var redisConn = builder.Configuration["Redis:ConnectionString"];
 
-// 2. רישום ה-HybridCache הבסיסי של .NET 9
-builder.Services.AddHybridCache();
-
-// 3. חיבור לרדיס באמצעות המתודה הרשמית והיציבה
-if (!string.IsNullOrEmpty(redisConn))
+// 2. רישום ה-StackExchangeRedisCache קודם (זה חובה עבור ה-HybridCache)
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    builder.Services.AddStackExchangeRedisCache(options =>
-    {
-        options.Configuration = redisConn;
-    });
-}
+    options.Configuration = redisConn;
+});
+
+// 3. רישום ה-HybridCache שישתמש אוטומטית ברדיס שהגדרנו למעלה
+builder.Services.AddHybridCache(options =>
+{
+    options.MaximumPayloadBytes = 1024 * 1024;
+    options.MaximumKeyLength = 1024;
+});
+
+
 builder.Services.Configure<ForgotPasswordServiceOptions>(
     builder.Configuration.GetSection("PasswordReset"));
 builder.Services.Configure<EmailSenderOptions>(
@@ -180,6 +183,15 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
 
+    options.AddSlidingWindowLimiter("StrictSlidingPolicy", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.SegmentsPerWindow = 2;
+        opt.QueueLimit = 0;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
     // מה קורה כשמשתמש נחסם? הגדרת קוד שגיאה 429
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
@@ -190,6 +202,7 @@ app.UseRateLimiter();
 app.UseExceptionHandler();
 app.UseRating();
 app.UseRouting();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -201,11 +214,11 @@ if (app.Environment.IsDevelopment())
         options.SwaggerEndpoint("/openapi/v1.json", "My API V1");
     });
 }
-app.UseCors();
 
-// ...
-
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseStaticFiles();
 

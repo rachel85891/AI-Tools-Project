@@ -26,7 +26,14 @@ namespace WebApiShop.Middleware
             rating.UserAgent = httpContext.Request.Headers.UserAgent;
             rating.RecordDate = DateTime.Now;
 
-            await ratingService.AddRating(rating);
+            try
+            {
+                await ratingService.AddRating(rating);
+            }
+            catch
+            {
+                // swallow — a failed rating write must not block the request
+            }
 
             await _next(httpContext);
         }
