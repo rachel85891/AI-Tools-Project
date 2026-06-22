@@ -2,9 +2,11 @@
 using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using NLog.Web;
 using Repositories;
 using Services;
+using Services.Chat;
 using WebApiShop.Middleware;
 using WebApiShop.Middlewares;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -102,12 +104,42 @@ builder.Services.Configure<EmailSenderOptions>(
     builder.Configuration.GetSection("Email"));
 // Bind Kafka settings for producers/consumers
 builder.Services.Configure<Services.KafkaSettings>(builder.Configuration.GetSection("Kafka"));
+// Bind LLM settings — ApiKey comes from user-secrets (dev) or LLM__ApiKey env var (prod/Docker)
+builder.Services.Configure<LLMOptions>(builder.Configuration.GetSection(LLMOptions.SectionName));
 // Register Kafka producer service (interface -> implementation)
 builder.Services.AddSingleton<IKafkaProducerService, KafkaProducerService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
 builder.Services.AddScoped<IOrderConfirmationEmailService, OrderConfirmationEmailService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
+
+builder.Services.AddHttpClient("LlmClient", (sp, client) =>
+{
+    var llm = sp.GetRequiredService<IOptions<LLMOptions>>().Value;
+    client.BaseAddress = new Uri(llm.BaseUrl);
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", llm.ApiKey);
+    client.Timeout = TimeSpan.FromSeconds(60);
+}).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+{
+    // Linux/OpenSSL cannot auto-fetch missing intermediate CAs (unlike Windows).
+    // Accept PartialChain only; all other SSL errors (expired, wrong host, etc.) are still rejected.
+    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+    {
+        RemoteCertificateValidationCallback = (_, _, chain, errors) =>
+        {
+            if (errors == System.Net.Security.SslPolicyErrors.None) return true;
+            if (errors == System.Net.Security.SslPolicyErrors.RemoteCertificateChainErrors
+                && chain is not null)
+            {
+                return chain.ChainStatus.All(s =>
+                    s.Status == System.Security.Cryptography.X509Certificates.X509ChainStatusFlags.PartialChain);
+            }
+            return false;
+        }
+    }
+});
+builder.Services.AddScoped<IChatService, ChatService>();
 
 builder.Services.AddExceptionHandler<ErrorHandlingMiddleware>();
 builder.Services.AddProblemDetails();
@@ -188,6 +220,15 @@ builder.Services.AddRateLimiter(options =>
         opt.PermitLimit = 5;
         opt.Window = TimeSpan.FromMinutes(1);
         opt.SegmentsPerWindow = 2;
+        opt.QueueLimit = 0;
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    options.AddSlidingWindowLimiter("ChatLimitPolicy", opt =>
+    {
+        opt.PermitLimit = 5;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.SegmentsPerWindow = 3;
         opt.QueueLimit = 0;
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });

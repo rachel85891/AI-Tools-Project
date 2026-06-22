@@ -1,0 +1,85 @@
+<!-- Floating Action Button -->
+<button
+  class="chat-fab"
+  (click)="toggle()"
+  [attr.aria-expanded]="isOpen()"
+  aria-label="Toggle AI assistant"
+>
+  @if (isOpen()) {
+    <span class="chat-fab__icon" aria-hidden="true">✕</span>
+  } @else {
+    <svg class="chat-fab__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  }
+</button>
+
+<!-- Chat window -->
+@if (isOpen()) {
+  <div class="chat-window" role="dialog" aria-label="AI Assistant chat">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="chat-header__info">
+        <span class="chat-header__dot" aria-hidden="true"></span>
+        <span class="chat-header__title">AI Assistant</span>
+      </div>
+      <button class="chat-header__close" (click)="toggle()" aria-label="Close chat">✕</button>
+    </header>
+
+    <!-- Message log -->
+    <div class="chat-messages" #messageLog role="log" aria-live="polite" aria-relevant="additions">
+
+      @if (messages().length === 0 && !isLoading()) {
+        <p class="chat-empty">Ask me anything about shows or your bookings.</p>
+      }
+
+      @for (msg of messages(); track msg.timestamp.getTime()) {
+        <div
+          class="chat-bubble"
+          [class.chat-bubble--user]="msg.sender === 'user'"
+          [class.chat-bubble--bot]="msg.sender === 'bot'"
+        >
+          <p class="chat-bubble__text">{{ msg.text }}</p>
+          <time class="chat-bubble__time">{{ msg.timestamp | date:'HH:mm' }}</time>
+        </div>
+      }
+
+      @if (isLoading()) {
+        <div class="chat-bubble chat-bubble--bot chat-bubble--loading" aria-label="Bot is typing">
+          <div class="chat-skeleton">
+            <span class="chat-skeleton__dot"></span>
+            <span class="chat-skeleton__dot"></span>
+            <span class="chat-skeleton__dot"></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input footer -->
+    <footer class="chat-footer">
+      <input
+        class="chat-input"
+        type="text"
+        [(ngModel)]="inputText"
+        (keydown.enter)="send()"
+        placeholder="Type a message…"
+        [disabled]="isLoading()"
+        autocomplete="off"
+        aria-label="Chat message"
+      />
+      <button
+        class="chat-send"
+        (click)="send()"
+        [disabled]="isLoading() || !inputText.trim()"
+        aria-label="Send message"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </footer>
+
+  </div>
+}

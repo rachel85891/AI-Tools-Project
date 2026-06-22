@@ -1,0 +1,319 @@
+// ── Host — fixed viewport anchor ─────────────────────────────────────────────
+:host {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1050;
+  display: block;
+}
+
+// ── Floating action button ────────────────────────────────────────────────────
+.chat-fab {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #2563eb;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.45);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  outline-offset: 3px;
+
+  &:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &__icon {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
+
+// ── Chat window ───────────────────────────────────────────────────────────────
+@keyframes chat-open {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.chat-window {
+  position: absolute;
+  bottom: 72px;
+  right: 0;
+  width: 360px;
+  max-height: 520px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: chat-open 180ms ease-out both;
+  will-change: transform, opacity;
+
+  @media (max-width: 420px) {
+    width: calc(100vw - 16px);
+    right: -8px;
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #2563eb;
+  color: #fff;
+  flex-shrink: 0;
+
+  &__info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.35);
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: color 100ms, background 100ms;
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+// ── Message log ───────────────────────────────────────────────────────────────
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 360px;
+  padding: 14px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  background: #f8fafc;
+
+  // Thin, unobtrusive scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+}
+
+.chat-empty {
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
+  margin: auto;
+  padding: 24px 12px;
+  line-height: 1.5;
+}
+
+// ── Message bubbles ───────────────────────────────────────────────────────────
+.chat-bubble {
+  max-width: 78%;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+
+  &__text {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  &__time {
+    display: block;
+    font-size: 10px;
+    opacity: 0.6;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+
+  // User bubble — right-aligned, brand blue
+  &--user {
+    align-self: flex-end;
+    background: #2563eb;
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+
+    .chat-bubble__time {
+      text-align: right;
+    }
+  }
+
+  // Bot bubble — left-aligned, soft gray
+  &--bot {
+    align-self: flex-start;
+    background: #ffffff;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    border-bottom-left-radius: 4px;
+
+    .chat-bubble__time {
+      text-align: left;
+      color: #64748b;
+    }
+  }
+
+  &--loading {
+    padding: 12px 16px;
+  }
+}
+
+// ── Typing / loading skeleton ─────────────────────────────────────────────────
+@keyframes skeleton-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.chat-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  &__dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    animation: skeleton-bounce 1.4s infinite ease-in-out;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.16s; }
+    &:nth-child(3) { animation-delay: 0.32s; }
+  }
+}
+
+// ── Input footer ──────────────────────────────────────────────────────────────
+.chat-footer {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.chat-input {
+  flex: 1;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 150ms;
+
+  &::placeholder {
+    color: #94a3b8;
+  }
+
+  &:focus {
+    border-color: #2563eb;
+    background: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.chat-send {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  transition: background 120ms, transform 100ms;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.92);
+  }
+
+  &:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+}

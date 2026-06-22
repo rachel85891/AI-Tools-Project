@@ -39,6 +39,7 @@ yarn-error.log
 # System
 .DS_Store
 Thumbs.db
+docker-compose.yml
 
 # IDEs
 .vscode/

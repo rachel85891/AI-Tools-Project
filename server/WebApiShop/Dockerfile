@@ -22,6 +22,12 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 
+# Refresh CA certificate bundle so HTTPS calls to external APIs (OpenAI etc.) work on Linux
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    update-ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=build /app/publish ./
 
 ENTRYPOINT ["dotnet", "WebApiShop.dll"]
