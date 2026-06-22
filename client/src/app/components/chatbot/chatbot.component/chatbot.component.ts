@@ -10,6 +10,7 @@ import {
 import { CommonModule, DatePipe, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../services/chat.service';
+import { AuthService } from '../../../services/auth-service';
 
 @Component({
   selector: 'app-chatbot',
@@ -20,6 +21,7 @@ import { ChatService } from '../../../services/chat.service';
 })
 export class ChatbotComponent {
   private readonly chatService = inject(ChatService);
+  private readonly authService = inject(AuthService);
   private readonly platformId = inject(PLATFORM_ID);
 
   readonly isOpen = signal(false);
@@ -46,6 +48,9 @@ export class ChatbotComponent {
 
   toggle(): void {
     this.isOpen.update(v => !v);
+    if (this.isOpen()) {
+      this.chatService.initWelcome(this.authService.userName());
+    }
   }
 
   send(): void {

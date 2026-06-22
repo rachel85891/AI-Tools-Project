@@ -88,6 +88,15 @@ export class ChatService {
       });
   }
 
+  initWelcome(userName: string): void {
+    if (this.messages().length > 0) return;
+    const name = userName && userName !== 'אורח' ? userName : null;
+    const greeting = name
+      ? `שלום ${name.trim()}! איך אוכל לעזור לך היום?`
+      : 'היי! איך אוכל לעזור לך היום?';
+    this.messages.set([{ sender: 'bot', text: greeting, timestamp: new Date() }]);
+  }
+
   clearMessages(): void {
     this.messages.set([]);
   }

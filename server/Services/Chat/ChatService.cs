@@ -103,17 +103,33 @@ public class ChatService : IChatService
 
     private async Task<string> BuildSystemPromptAsync(string? userId, CancellationToken cancellationToken)
     {
+        var today = DateOnly.FromDateTime(DateTime.Today);
         var sb = new StringBuilder();
-        sb.AppendLine("You are a helpful assistant for a theater ticket booking system.");
-        sb.AppendLine("You have access to the following upcoming shows:");
+        sb.AppendLine($"Today's date is {today:yyyy-MM-dd}.");
+        sb.AppendLine("You are a helpful assistant for ShowsCenter, a theater and events ticket booking platform.");
         sb.AppendLine();
+        sb.AppendLine("HOW SEAT BOOKING WORKS:");
+        sb.AppendLine("Users browse the Shows page. After clicking on a show, a details panel opens.");
+        sb.AppendLine("Inside the details, clicking 'Book Seats' opens an interactive visual seat map.");
+        sb.AppendLine("The map displays the available seating sections (Hall, Right Balcony, Left Balcony, Center Balcony).");
+        sb.AppendLine("Available seats appear bright; taken seats are grayed out.");
+        sb.AppendLine("The user clicks an available seat, confirms the selection, and it is added to the cart.");
+        sb.AppendLine("After choosing all seats, the user proceeds to checkout.");
+        sb.AppendLine();
+        sb.AppendLine("SITE NAVIGATION — when directing a user to a specific page, include an HTML link using exactly these hrefs:");
+        sb.AppendLine("  Browse / search shows: <a href=\"/shows\">Shows page</a>");
+        sb.AppendLine("  Shopping cart:         <a href=\"/cart\">Cart</a>");
+        sb.AppendLine("  Checkout:              <a href=\"/checkout\">Checkout</a>");
+        sb.AppendLine("  Personal area:         <a href=\"/personal-area\">Personal Area</a>");
+        sb.AppendLine();
+        sb.AppendLine($"UPCOMING SHOWS (only shows on or after {today:yyyy-MM-dd} are listed):");
 
         List<Show> allShows = await _showsRepository.getAllShows();
-        var shows = allShows.Take(20).ToList();
+        var shows = allShows.Where(s => s.Date >= today).OrderBy(s => s.Date).Take(20).ToList();
 
         if (shows.Count == 0)
         {
-            sb.AppendLine("(No shows currently available.)");
+            sb.AppendLine("(No upcoming shows are scheduled.)");
         }
         else
         {

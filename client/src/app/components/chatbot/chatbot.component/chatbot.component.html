@@ -40,7 +40,11 @@
           [class.chat-bubble--user]="msg.sender === 'user'"
           [class.chat-bubble--bot]="msg.sender === 'bot'"
         >
-          <p class="chat-bubble__text">{{ msg.text }}</p>
+          @if (msg.sender === 'bot') {
+            <p class="chat-bubble__text" [innerHTML]="msg.text"></p>
+          } @else {
+            <p class="chat-bubble__text">{{ msg.text }}</p>
+          }
           <time class="chat-bubble__time">{{ msg.timestamp | date:'HH:mm' }}</time>
         </div>
       }

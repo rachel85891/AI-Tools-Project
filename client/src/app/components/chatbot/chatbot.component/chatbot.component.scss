@@ -210,6 +210,12 @@
       text-align: left;
       color: #64748b;
     }
+
+    .chat-bubble__text a {
+      color: #2563eb;
+      text-decoration: underline;
+      &:hover { color: #1d4ed8; }
+    }
   }
 
   &--loading {
