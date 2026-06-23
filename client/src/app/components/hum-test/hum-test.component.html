@@ -1,0 +1,58 @@
+<div class="hum-container flex flex-column align-items-center justify-content-center p-4">
+
+  <!-- STATE: idle -->
+  @if (state === 'idle') {
+    <div class="idle-section text-center">
+      <h2 class="mb-2">זהה ז'אנר מוזיקלי</h2>
+      <p class="text-color-secondary mb-4">לחץ על המיקרופון וזמזם מנגינה</p>
+      <button
+        class="mic-button mic-idle"
+        (click)="onMicClick()"
+        aria-label="התחל הקלטה">
+        <i class="pi pi-microphone"></i>
+      </button>
+    </div>
+  }
+
+  <!-- STATE: recording -->
+  @if (state === 'recording') {
+    <div class="recording-section flex flex-column align-items-center gap-3">
+      <p class="recording-label">מקליט… זמזם מנגינה</p>
+      <app-audio-visualizer [width]="320" [height]="80" />
+      <button
+        class="mic-button mic-recording"
+        (click)="onStopClick()"
+        aria-label="עצור הקלטה">
+        <i class="pi pi-stop"></i>
+      </button>
+    </div>
+  }
+
+  <!-- STATE: processing -->
+  @if (state === 'processing') {
+    <div class="processing-section flex flex-column align-items-center gap-3">
+      <p-progressspinner strokeWidth="4" />
+      <p class="genre-detecting-text">מנתח ז'אנר…</p>
+    </div>
+  }
+
+  <!-- STATE: results -->
+  @if (state === 'results' && result) {
+    <div class="results-section w-full">
+      <app-genre-result-card [result]="result" />
+      <div class="flex justify-content-center mt-3">
+        <p-button label="נסה שוב" icon="pi pi-refresh" (onClick)="onRetry()" severity="secondary" />
+      </div>
+    </div>
+  }
+
+  <!-- STATE: error -->
+  @if (state === 'error') {
+    <div class="error-section text-center">
+      <i class="pi pi-exclamation-triangle text-4xl text-red-500 mb-3 block"></i>
+      <p class="text-red-500 mb-3">{{ errorMessage }}</p>
+      <p-button label="נסה שוב" icon="pi pi-refresh" (onClick)="onRetry()" />
+    </div>
+  }
+
+</div>

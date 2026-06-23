@@ -44,6 +44,8 @@ public partial class ShowsCenterContext : DbContext
 
     public virtual DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
 
+    public virtual DbSet<HumSession> HumSessions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Category>(entity =>
@@ -211,14 +213,24 @@ public partial class ShowsCenterContext : DbContext
                 .HasMaxLength(500)
                 .HasColumnName("path");
             entity.Property(e => e.RecordDate)
-                .HasColumnName("record_date")
-                .HasDefaultValueSql("GETDATE()");
+                .HasColumnName("record_date");
             entity.Property(e => e.Referer)
                 .HasMaxLength(500)
                 .HasColumnName("referer");
             entity.Property(e => e.UserAgent)
                 .HasMaxLength(1000)
                 .HasColumnName("user_agent");
+        });
+
+        modelBuilder.Entity<HumSession>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.DetectedGenre).HasMaxLength(200);
+            entity.Property(e => e.RawTranscription).HasMaxLength(4000);
+            entity.Property(e => e.RecommendedShowIds).HasMaxLength(2000);
+            entity.Property(e => e.SessionStatus).HasConversion<string>().HasMaxLength(20);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using DTOs;
 using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +8,7 @@ using NLog.Web;
 using Repositories;
 using Services;
 using Services.Chat;
+using Services.HumTest;
 using WebApiShop.Middleware;
 using WebApiShop.Middlewares;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -40,6 +42,7 @@ builder.Services.AddScoped<ISectionRepository, SectionRepository>();
 builder.Services.AddScoped<IShowsRepository, ShowsRepository>();
 builder.Services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+builder.Services.AddScoped<IHumRepository, HumRepository>();
 //builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -141,6 +144,21 @@ builder.Services.AddHttpClient("LlmClient", (sp, client) =>
 });
 builder.Services.AddScoped<IChatService, ChatService>();
 
+// HumTest — genre-detection & show-recommendation
+builder.Services.AddSingleton<IGenreStrategy, HummingGenreStrategy>();
+builder.Services.AddSingleton<IGenreStrategy, SingingGenreStrategy>();
+if (builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Testing"))
+    builder.Services.AddScoped<IAIAudioAnalyzer, MockAudioAnalyzer>();
+else
+    builder.Services.AddScoped<IAIAudioAnalyzer, ClaudeAudioAnalyzer>();
+builder.Services.AddScoped<IHumService, HumService>();
+// Observers
+builder.Services.AddScoped<IHumEventObserver, AnalyticsObserver>();
+builder.Services.AddScoped<IHumEventObserver, RecommendationObserver>();
+// Command handlers
+builder.Services.AddScoped<ICommandHandler<AnalyzeHumCommand, HumSessionResponseDto>, AnalyzeHumCommandHandler>();
+builder.Services.AddScoped<ICommandHandler<GetSessionCommand, HumSessionResponseDto?>, GetSessionCommandHandler>();
+
 builder.Services.AddExceptionHandler<ErrorHandlingMiddleware>();
 builder.Services.AddProblemDetails();
 
@@ -239,13 +257,14 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-app.UseRateLimiter();
 app.UseExceptionHandler();
 app.UseRating();
 app.UseRouting();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+// UseRateLimiter must come after UseRouting so [EnableRateLimiting] endpoint metadata is visible.
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {
@@ -265,9 +284,6 @@ app.UseStaticFiles();
 
 app.MapControllers();
 
-// When running under the integration test host we avoid calling Run() to let the test
-// infrastructure manage the host lifecycle. Tests set the environment to "Testing".
-if (!app.Environment.IsEnvironment("Testing"))
-{
-    app.Run();
-}
+// WebApplicationFactory (used in integration tests) intercepts app.Run() before the server
+// actually starts listening — calling Run() unconditionally is required for the factory to work.
+app.Run();

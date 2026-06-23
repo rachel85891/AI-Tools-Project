@@ -18,5 +18,7 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent },
   { path: 'personal-area', component: PersonalAreaComponent },
   { path: 'dev-help', component: DevHelpComponent },
+  { path: 'hum-test', loadComponent: () => import('./components/hum-test/hum-test.component').then(m => m.HumTestComponent) },
+  { path: 'hum', loadComponent: () => import('./components/hum-test/hum-test.component').then(m => m.HumTestComponent) },
   { path: '**', redirectTo: '/shows' },
 ];

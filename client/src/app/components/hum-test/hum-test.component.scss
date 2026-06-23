@@ -1,0 +1,70 @@
+.hum-container {
+  min-height: 60vh;
+}
+
+.results-section {
+  max-width: 640px;
+  width: 100%;
+}
+
+// --- Mic button base ---
+.mic-button {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+
+  &:focus-visible {
+    outline: 3px solid #1e40af;
+    outline-offset: 4px;
+  }
+}
+
+// --- Idle state: blue pulse ---
+.mic-idle {
+  background: #1e40af;
+  color: white;
+  animation: mic-pulse 2s infinite;
+}
+
+@keyframes mic-pulse {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45); }
+  70%  { transform: scale(1.06); box-shadow: 0 0 0 18px rgba(30, 64, 175, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(30, 64, 175, 0); }
+}
+
+// --- Recording state: red pulse ---
+.mic-recording {
+  background: #dc2626;
+  color: white;
+  animation: mic-recording 1s infinite;
+}
+
+@keyframes mic-recording {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50%       { transform: scale(1.08); box-shadow: 0 0 0 14px rgba(220, 38, 38, 0); }
+}
+
+.recording-label {
+  color: #dc2626;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+// --- Processing ---
+.genre-detecting-text {
+  color: #6b7280;
+  font-size: 1.1rem;
+  animation: fade-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fade-pulse {
+  from { opacity: 0.35; }
+  to   { opacity: 1; }
+}

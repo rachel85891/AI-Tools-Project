@@ -106,6 +106,45 @@ Main controller areas:
 - `PasswordController` — password strength checks.
 - `ImagesController` — authenticated image upload to `wwwroot/uploads`.
 - `HealthController` — health check endpoint.
+- `HumController` — audio genre detection and show recommendations.
+
+### HumTest — Musical Genre Detection
+
+Record a short audio clip (hum or sing) and let Claude AI identify the musical genre and recommend matching shows.
+
+**Endpoints**
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/hum/analyze` | None | Submit base64 audio, returns genre + recommended shows |
+| GET | `/api/hum/session/{id}` | None | Fetch a cached analysis result |
+| GET | `/api/hum/history` | JWT Bearer | List analysis history for the authenticated user |
+
+**Configuration**
+
+```json
+"HumTest": {
+  "AIProvider": "Claude",
+  "KafkaTopic": "hum-sessions",
+  "CacheExpirationMinutes": 60
+}
+```
+
+Set `CLAUDE_API_KEY` in your environment or `.env` file. Use `"AIProvider": "Mock"` for local development without a Claude key.
+
+**Browser requirements**
+
+- MediaRecorder API (Chrome 49+, Firefox 25+, Edge 79+)
+- Web Audio API for real-time waveform visualization
+
+**Design patterns applied**
+
+- Adapter (`ClaudeAudioAnalyzer` / `MockAudioAnalyzer`)
+- Strategy (`HummingGenreStrategy` / `SingingGenreStrategy`)
+- Chain of Responsibility (audio validation pipeline)
+- Facade (`HumService`)
+- Command (`AnalyzeHumCommand` / `GetSessionCommand`)
+- Observer (`AnalyticsObserver` / `RecommendationObserver`)
 
 ## Frontend Highlights
 

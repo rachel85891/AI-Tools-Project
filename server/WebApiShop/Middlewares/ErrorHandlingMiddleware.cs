@@ -18,20 +18,24 @@ namespace WebApiShop.Middlewares
             Exception exception,
             CancellationToken cancellationToken)
         {
-            // רישום השגיאה ללוג הפנימי של השרת
             _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
 
-            // יצירת תשובה מסודרת למשתמש
+            var (statusCode, title, detail) = exception switch
+            {
+                ArgumentOutOfRangeException e => (400, "Validation Error", e.Message),
+                ArgumentException e           => (400, "Validation Error", e.Message),
+                _                             => (500, "Server Error", "משהו השתבש בשרת, הצוות הטכני עודכן.")
+            };
+
             var problemDetails = new ProblemDetails
             {
-                Status = (int)HttpStatusCode.InternalServerError,
-                Title = "Server Error",
-                Detail = "משהו השתבש בשרת, הצוות הטכני עודכן.",
+                Status   = statusCode,
+                Title    = title,
+                Detail   = detail,
                 Instance = httpContext.Request.Path
             };
 
-            // הגדרת סוג התוכן כ-JSON ושליחת התשובה
-            httpContext.Response.StatusCode = problemDetails.Status.Value;
+            httpContext.Response.StatusCode = statusCode;
 
             await httpContext.Response
                 .WriteAsJsonAsync(problemDetails, cancellationToken);

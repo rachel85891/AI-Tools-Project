@@ -1,0 +1,64 @@
+<div class="genre-result-card" dir="rtl">
+
+  <!-- Genre hero -->
+  <div class="genre-hero text-center mb-4">
+    <div class="genre-emoji mb-1">{{ mood }}</div>
+    <h2 class="genre-title">{{ result.detectedGenre }}</h2>
+    <div class="confidence-row mt-2">
+      <span class="confidence-label">רמת ביטחון: {{ confidencePct }}%</span>
+      <p-progressbar [value]="confidencePct" styleClass="confidence-bar mt-1" />
+    </div>
+  </div>
+
+  <!-- Sub-genre chips -->
+  @if (subGenres.length > 0) {
+    <div class="flex gap-2 flex-wrap justify-content-center mb-4">
+      @for (sg of subGenres; track sg) {
+        <p-chip [label]="sg" styleClass="subgenre-chip" />
+      }
+    </div>
+  }
+
+  <!-- Recommended shows -->
+  @if (result.recommendedShows.length > 0) {
+    <h3 class="mb-3 text-center">הצגות מומלצות</h3>
+    <div class="grid">
+      @for (show of result.recommendedShows; track show.id) {
+        <div class="col-12 md:col-6 lg:col-4">
+          <p-card styleClass="show-rec-card h-full">
+            <ng-template pTemplate="header">
+              <img
+                [src]="show.imgUrl || 'assets/placeholder.jpg'"
+                [alt]="show.title"
+                class="show-rec-img" />
+            </ng-template>
+            <ng-template pTemplate="title">{{ show.title }}</ng-template>
+            <ng-template pTemplate="subtitle">
+              {{ show.categoryName }} · {{ show.date | date:'dd/MM/yy' }}
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p-button
+                label="הזמן עכשיו"
+                icon="pi pi-ticket"
+                size="small"
+                (onClick)="onBookShow()" />
+            </ng-template>
+          </p-card>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="text-color-secondary text-center">לא נמצאו הצגות תואמות לז'אנר זה</p>
+  }
+
+  <!-- Share -->
+  <div class="share-row flex justify-content-center mt-4">
+    <p-button
+      label="שתף תוצאה"
+      icon="pi pi-share-alt"
+      severity="secondary"
+      [outlined]="true"
+      (onClick)="onShare()" />
+  </div>
+
+</div>
